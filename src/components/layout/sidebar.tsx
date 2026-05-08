@@ -128,8 +128,8 @@ export function Sidebar() {
               );
               return sidebarCollapsed ? (
                 <Tooltip key={item.href}>
-                  <TooltipTrigger asChild>
-                    <span>{link}</span>
+                  <TooltipTrigger>
+                    {link}
                   </TooltipTrigger>
                   <TooltipContent side="right">{item.label}</TooltipContent>
                 </Tooltip>
