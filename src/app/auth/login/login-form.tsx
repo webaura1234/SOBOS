@@ -50,6 +50,10 @@ export function LoginForm() {
     formState: { errors: emailErrors },
   } = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
+    defaultValues: {
+      email: 'demo@restaurantos.com',
+      password: 'demo123',
+    },
   });
 
   const {
