@@ -1,16 +1,30 @@
 'use client';
 
-import { DashboardLayout, DashboardHeader, DashboardGrid, DashboardSection } from '@/components/dashboard/dashboard-layout';
-import { StatCard, ActivityFeed, AlertWidget, RealtimeStatus, KPICard, QuickActions } from '@/components/dashboard/dashboard-widgets';
+import {
+  DashboardLayout,
+  DashboardHeader,
+  DashboardGrid,
+  DashboardSection,
+} from '@/components/dashboard/dashboard-layout';
+import {
+  StatCard,
+  ActivityFeed,
+  AlertWidget,
+  RealtimeStatus,
+  KPICard,
+  QuickActions,
+} from '@/components/dashboard/dashboard-widgets';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useEffect, useState } from 'react';
-import { 
-  Users, 
-  Building2, 
-  DollarSign, 
-  TrendingUp, 
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/config/routes';
+import {
+  Users,
+  Building2,
+  DollarSign,
+  TrendingUp,
   AlertTriangle,
   Activity,
   Server,
@@ -20,9 +34,22 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   MoreHorizontal,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
 
 // Mock data for platform admin
 const platformStats = {
@@ -52,21 +79,68 @@ const planDistribution = [
 ];
 
 const recentActivity = [
-  { id: '1', type: 'system' as const, title: 'New restaurant onboarded', description: 'Bella Vista Restaurant joined', timestamp: '2 minutes ago', status: 'success' as const },
-  { id: '2', type: 'alert' as const, title: 'High server load detected', description: 'Database connections at 85%', timestamp: '5 minutes ago', status: 'warning' as const },
-  { id: '3', type: 'payment' as const, title: 'Subscription payment received', description: '$299 from Luigi\'s Kitchen', timestamp: '10 minutes ago', status: 'success' as const },
-  { id: '4', type: 'staff' as const, title: 'New staff member added', description: 'Sarah Johnson at Downtown Grill', timestamp: '15 minutes ago', status: 'info' as const },
-  { id: '5', type: 'order' as const, title: 'Large order processed', description: '$1,250 order at The Steakhouse', timestamp: '20 minutes ago', status: 'success' as const },
+  {
+    id: '1',
+    type: 'system' as const,
+    title: 'New restaurant onboarded',
+    description: 'Bella Vista Restaurant joined',
+    timestamp: '2 minutes ago',
+    status: 'success' as const,
+  },
+  {
+    id: '2',
+    type: 'alert' as const,
+    title: 'High server load detected',
+    description: 'Database connections at 85%',
+    timestamp: '5 minutes ago',
+    status: 'warning' as const,
+  },
+  {
+    id: '3',
+    type: 'payment' as const,
+    title: 'Subscription payment received',
+    description: "$299 from Luigi's Kitchen",
+    timestamp: '10 minutes ago',
+    status: 'success' as const,
+  },
+  {
+    id: '4',
+    type: 'staff' as const,
+    title: 'New staff member added',
+    description: 'Sarah Johnson at Downtown Grill',
+    timestamp: '15 minutes ago',
+    status: 'info' as const,
+  },
+  {
+    id: '5',
+    type: 'order' as const,
+    title: 'Large order processed',
+    description: '$1,250 order at The Steakhouse',
+    timestamp: '20 minutes ago',
+    status: 'success' as const,
+  },
 ];
 
 const alerts = [
-  { id: '1', type: 'warning' as const, title: '3 restaurants approaching billing limit', message: 'Restaurants with high usage need attention', action: { label: 'Review', onClick: () => {} } },
-  { id: '2', type: 'info' as const, title: 'System maintenance scheduled', message: 'Planned maintenance tonight at 2 AM EST' },
+  {
+    id: '1',
+    type: 'warning' as const,
+    title: '3 restaurants approaching billing limit',
+    message: 'Restaurants with high usage need attention',
+    action: { label: 'Review', onClick: () => {} },
+  },
+  {
+    id: '2',
+    type: 'info' as const,
+    title: 'System maintenance scheduled',
+    message: 'Planned maintenance tonight at 2 AM EST',
+  },
 ];
 
 export default function PlatformAdminDashboardPage() {
   const [isConnected, setIsConnected] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date());
+  const router = useRouter();
 
   const handleRefresh = () => {
     setLastUpdated(new Date());
@@ -80,12 +154,8 @@ export default function PlatformAdminDashboardPage() {
         onRefresh={handleRefresh}
         actions={
           <div className="flex items-center gap-2">
-            <RealtimeStatus 
-              isConnected={isConnected} 
-              lastUpdated={lastUpdated}
-              onRefresh={handleRefresh}
-            />
-            <Button size="sm">
+            <RealtimeStatus isConnected={isConnected} lastUpdated={lastUpdated} onRefresh={handleRefresh} />
+            <Button size="sm" onClick={() => router.push('/restaurants?action=add')}>
               <Plus className="mr-2 h-4 w-4" />
               Add Restaurant
             </Button>
@@ -93,7 +163,13 @@ export default function PlatformAdminDashboardPage() {
         }
       />
 
-      <AlertWidget alerts={alerts} />
+      <AlertWidget
+        alerts={alerts.map((alert) =>
+          alert.id === '1'
+            ? { ...alert, action: { label: 'Review', onClick: () => router.push('/admin?tab=billing') } }
+            : alert
+        )}
+      />
 
       <DashboardGrid columns={4}>
         <StatCard
@@ -141,13 +217,7 @@ export default function PlatformAdminDashboardPage() {
           unit=""
           icon={<Building2 className="h-5 w-5" />}
         />
-        <KPICard
-          title="Support SLA"
-          current={98}
-          target={95}
-          unit="%"
-          icon={<Shield className="h-5 w-5" />}
-        />
+        <KPICard title="Support SLA" current={98} target={95} unit="%" icon={<Shield className="h-5 w-5" />} />
       </DashboardGrid>
 
       <DashboardGrid columns={2}>
@@ -166,21 +236,15 @@ export default function PlatformAdminDashboardPage() {
               <AreaChart data={revenueData}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="month" stroke="#888" fontSize={12} />
-                <YAxis stroke="#888" fontSize={12} tickFormatter={(value) => `$${value/1000}k`} />
+                <YAxis stroke="#888" fontSize={12} tickFormatter={(value) => `$${value / 1000}k`} />
                 <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']} />
-                <Area 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#3b82f6" 
-                  fillOpacity={1} 
-                  fill="url(#colorRevenue)" 
-                />
+                <Area type="monotone" dataKey="revenue" stroke="#3b82f6" fillOpacity={1} fill="url(#colorRevenue)" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -218,7 +282,9 @@ export default function PlatformAdminDashboardPage() {
               {planDistribution.map((plan) => (
                 <div key={plan.name} className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: plan.color }} />
-                  <span className="text-sm text-muted-foreground">{plan.name} ({plan.value})</span>
+                  <span className="text-sm text-muted-foreground">
+                    {plan.name} ({plan.value})
+                  </span>
                 </div>
               ))}
             </div>
@@ -227,19 +293,41 @@ export default function PlatformAdminDashboardPage() {
       </DashboardGrid>
 
       <DashboardGrid columns={2}>
-        <ActivityFeed 
-          activities={recentActivity} 
-          maxHeight={400}
-        />
-        
+        <ActivityFeed activities={recentActivity} maxHeight={400} />
+
         <QuickActions
           actions={[
-            { label: 'Add Restaurant', icon: <Building2 className="h-4 w-4" />, onClick: () => {}, variant: 'primary' },
-            { label: 'Manage Users', icon: <Users className="h-4 w-4" />, onClick: () => {} },
-            { label: 'View Reports', icon: <TrendingUp className="h-4 w-4" />, onClick: () => {} },
-            { label: 'System Settings', icon: <Server className="h-4 w-4" />, onClick: () => {} },
-            { label: 'Support Tickets', icon: <Shield className="h-4 w-4" />, onClick: () => {} },
-            { label: 'Billing', icon: <DollarSign className="h-4 w-4" />, onClick: () => {} },
+            {
+              label: 'Add Restaurant',
+              icon: <Building2 className="h-4 w-4" />,
+              onClick: () => router.push('/restaurants?action=add'),
+              variant: 'primary',
+            },
+            {
+              label: 'Manage Users',
+              icon: <Users className="h-4 w-4" />,
+              onClick: () => router.push('/admin?tab=users'),
+            },
+            {
+              label: 'View Reports',
+              icon: <TrendingUp className="h-4 w-4" />,
+              onClick: () => router.push(ROUTES.protected.reports),
+            },
+            {
+              label: 'System Settings',
+              icon: <Server className="h-4 w-4" />,
+              onClick: () => router.push('/admin?tab=settings'),
+            },
+            {
+              label: 'Support Tickets',
+              icon: <Shield className="h-4 w-4" />,
+              onClick: () => router.push('/admin?tab=support'),
+            },
+            {
+              label: 'Billing',
+              icon: <DollarSign className="h-4 w-4" />,
+              onClick: () => router.push('/admin?tab=billing'),
+            },
           ]}
         />
       </DashboardGrid>

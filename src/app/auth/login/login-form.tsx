@@ -101,14 +101,20 @@ export function LoginForm() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 mb-4">
-          <ChefHat className="h-6 w-6 text-primary" />
+      {/* Logo — top of right panel, exactly like SOBOS reference */}
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-9 h-9 bg-[#E54D2E] rounded-lg flex items-center justify-center flex-shrink-0">
+          <ChefHat className="h-5 w-5 text-white" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
-        <p className="text-sm text-muted-foreground">
-          Sign in to your RestaurantOS account
-        </p>
+        <div className="leading-tight">
+          <p className="font-black text-base tracking-tight text-gray-900">SOBOS</p>
+          <p className="text-[9px] uppercase tracking-widest font-semibold text-gray-400">Restaurant POS</p>
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <h1 className="text-3xl font-black tracking-tight text-gray-900">Welcome Back</h1>
+        <p className="text-sm text-muted-foreground">Login to manage your restaurant operations.</p>
       </div>
 
       <Tabs value={loginMethod} onValueChange={(v) => setLoginMethod(v as 'email' | 'otp')}>
@@ -124,55 +130,38 @@ export function LoginForm() {
         </TabsList>
 
         <TabsContent value="email" className="mt-4">
-            <motion.form
-              key="email-form"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-              onSubmit={handleEmailSubmit(onEmailSubmit)}
-              className="space-y-4"
-            >
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="name@company.com"
-                  {...registerEmail('email')}
-                />
-                {emailErrors.email && (
-                  <p className="text-sm text-red-500">{emailErrors.email.message}</p>
-                )}
+          <motion.form
+            key="email-form"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            onSubmit={handleEmailSubmit(onEmailSubmit)}
+            className="space-y-4"
+          >
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" placeholder="name@company.com" {...registerEmail('email')} />
+              {emailErrors.email && <p className="text-sm text-red-500">{emailErrors.email.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Link href="/auth/forgot-password" className="text-sm text-primary hover:underline">
+                  Forgot password?
+                </Link>
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="/auth/forgot-password"
-                    className="text-sm text-primary hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  {...registerEmail('password')}
-                />
-                {emailErrors.password && (
-                  <p className="text-sm text-red-500">{emailErrors.password.message}</p>
-                )}
-              </div>
-              <Button type="submit" className="w-full" disabled={isLoggingIn}>
-                {isLoggingIn ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <ArrowRight className="mr-2 h-4 w-4" />
-                )}
-                Sign In
-              </Button>
-            </motion.form>
+              <Input id="password" type="password" placeholder="Enter your password" {...registerEmail('password')} />
+              {emailErrors.password && <p className="text-sm text-red-500">{emailErrors.password.message}</p>}
+            </div>
+            <Button type="submit" className="w-full" disabled={isLoggingIn}>
+              {isLoggingIn ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <ArrowRight className="mr-2 h-4 w-4" />
+              )}
+              Sign In
+            </Button>
+          </motion.form>
         </TabsContent>
 
         <TabsContent value="otp" className="mt-4">
@@ -185,30 +174,23 @@ export function LoginForm() {
               onSubmit={handlePhoneSubmit(onPhoneSubmit)}
               className="space-y-4"
             >
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="+1 (555) 123-4567"
-                    {...registerPhone('phone')}
-                  />
-                  {phoneErrors.phone && (
-                    <p className="text-sm text-red-500">{phoneErrors.phone.message}</p>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    We&apos;ll send you a one-time password to verify your identity
-                  </p>
-                </div>
-                <Button type="submit" className="w-full" disabled={isRequestingOTP}>
-                  {isRequestingOTP ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <ArrowRight className="mr-2 h-4 w-4" />
-                  )}
-                  Send OTP
-                </Button>
-              </motion.form>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" {...registerPhone('phone')} />
+                {phoneErrors.phone && <p className="text-sm text-red-500">{phoneErrors.phone.message}</p>}
+                <p className="text-xs text-muted-foreground">
+                  We&apos;ll send you a one-time password to verify your identity
+                </p>
+              </div>
+              <Button type="submit" className="w-full" disabled={isRequestingOTP}>
+                {isRequestingOTP ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                )}
+                Send OTP
+              </Button>
+            </motion.form>
           ) : (
             <motion.form
               key="otp-verify-form"
@@ -218,42 +200,33 @@ export function LoginForm() {
               onSubmit={handleOTPSubmit(onOTPSubmit)}
               className="space-y-4"
             >
-                <div className="text-center mb-4">
-                  <p className="text-sm text-muted-foreground">
-                    Enter the 6-digit code sent to
-                  </p>
-                  <p className="font-medium">{phoneNumber}</p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="otp">Verification Code</Label>
-                  <Input
-                    id="otp"
-                    type="text"
-                    maxLength={6}
-                    placeholder="123456"
-                    className="text-center text-2xl tracking-widest"
-                    {...registerOTP('otp')}
-                  />
-                  {otpErrors.otp && (
-                    <p className="text-sm text-red-500">{otpErrors.otp.message}</p>
-                  )}
-                </div>
-                <Button type="submit" className="w-full" disabled={isVerifyingOTP}>
-                  {isVerifyingOTP ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <ArrowRight className="mr-2 h-4 w-4" />
-                  )}
-                  Verify & Sign In
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => setOtpSent(false)}
-                >
-                  Change phone number
-                </Button>
+              <div className="text-center mb-4">
+                <p className="text-sm text-muted-foreground">Enter the 6-digit code sent to</p>
+                <p className="font-medium">{phoneNumber}</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="otp">Verification Code</Label>
+                <Input
+                  id="otp"
+                  type="text"
+                  maxLength={6}
+                  placeholder="123456"
+                  className="text-center text-2xl tracking-widest"
+                  {...registerOTP('otp')}
+                />
+                {otpErrors.otp && <p className="text-sm text-red-500">{otpErrors.otp.message}</p>}
+              </div>
+              <Button type="submit" className="w-full" disabled={isVerifyingOTP}>
+                {isVerifyingOTP ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                )}
+                Verify & Sign In
+              </Button>
+              <Button type="button" variant="ghost" className="w-full" onClick={() => setOtpSent(false)}>
+                Change phone number
+              </Button>
             </motion.form>
           )}
         </TabsContent>

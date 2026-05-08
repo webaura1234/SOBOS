@@ -1,6 +1,12 @@
 'use client';
 
-import { DashboardLayout, DashboardHeader, DashboardGrid, DashboardSection, DashboardCard } from '@/components/dashboard/dashboard-layout';
+import {
+  DashboardLayout,
+  DashboardHeader,
+  DashboardGrid,
+  DashboardSection,
+  DashboardCard,
+} from '@/components/dashboard/dashboard-layout';
 import { StatCard, AlertWidget, ActivityFeed } from '@/components/dashboard/dashboard-widgets';
 import { DataTable, BulkAction } from '@/components/tables/data-table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,10 +14,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useState } from 'react';
-import { 
-  Package, 
-  AlertTriangle, 
-  TrendingDown, 
+import { useRouter } from 'next/navigation';
+import {
+  Package,
+  AlertTriangle,
+  TrendingDown,
   DollarSign,
   Plus,
   ArrowUpDown,
@@ -23,10 +30,15 @@ import {
   MoreHorizontal,
   Edit,
   Trash2,
-  History
+  History,
 } from 'lucide-react';
 import { ColumnDef } from '@tanstack/react-table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface InventoryItem {
   id: string;
@@ -44,26 +56,170 @@ interface InventoryItem {
 }
 
 const inventoryData: InventoryItem[] = [
-  { id: '1', name: 'Chicken Breast', category: 'Meat', quantity: 25, unit: 'kg', minStock: 20, maxStock: 100, unitCost: 8.50, totalValue: 212.50, supplier: 'Premium Meats Co.', lastOrdered: '2 days ago', status: 'in-stock' },
-  { id: '2', name: 'Atlantic Salmon', category: 'Seafood', quantity: 12, unit: 'kg', minStock: 15, maxStock: 50, unitCost: 18.00, totalValue: 216.00, supplier: 'Ocean Fresh', lastOrdered: '1 day ago', status: 'low-stock' },
-  { id: '3', name: 'Ribeye Steak', category: 'Meat', quantity: 45, unit: 'kg', minStock: 25, maxStock: 80, unitCost: 22.00, totalValue: 990.00, supplier: 'Premium Meats Co.', lastOrdered: '3 days ago', status: 'in-stock' },
-  { id: '4', name: 'Olive Oil (Extra Virgin)', category: 'Pantry', quantity: 8, unit: 'bottles', minStock: 12, maxStock: 50, unitCost: 15.00, totalValue: 120.00, supplier: 'Mediterranean Imports', lastOrdered: '5 days ago', status: 'low-stock' },
-  { id: '5', name: 'Fresh Basil', category: 'Produce', quantity: 2, unit: 'bunches', minStock: 5, maxStock: 20, unitCost: 3.50, totalValue: 7.00, supplier: 'Green Farms', lastOrdered: '1 day ago', status: 'out-of-stock' },
-  { id: '6', name: 'Truffle Oil', category: 'Pantry', quantity: 15, unit: 'bottles', minStock: 5, maxStock: 30, unitCost: 45.00, totalValue: 675.00, supplier: 'Gourmet Imports', lastOrdered: '1 week ago', status: 'in-stock' },
-  { id: '7', name: 'Arborio Rice', category: 'Pantry', quantity: 60, unit: 'kg', minStock: 30, maxStock: 150, unitCost: 4.50, totalValue: 270.00, supplier: 'Italian Imports', lastOrdered: '4 days ago', status: 'in-stock' },
-  { id: '8', name: 'Heavy Cream', category: 'Dairy', quantity: 10, unit: 'liters', minStock: 20, maxStock: 100, unitCost: 6.00, totalValue: 60.00, supplier: 'Local Dairy Farm', lastOrdered: '1 day ago', status: 'low-stock' },
+  {
+    id: '1',
+    name: 'Chicken Breast',
+    category: 'Meat',
+    quantity: 25,
+    unit: 'kg',
+    minStock: 20,
+    maxStock: 100,
+    unitCost: 8.5,
+    totalValue: 212.5,
+    supplier: 'Premium Meats Co.',
+    lastOrdered: '2 days ago',
+    status: 'in-stock',
+  },
+  {
+    id: '2',
+    name: 'Atlantic Salmon',
+    category: 'Seafood',
+    quantity: 12,
+    unit: 'kg',
+    minStock: 15,
+    maxStock: 50,
+    unitCost: 18.0,
+    totalValue: 216.0,
+    supplier: 'Ocean Fresh',
+    lastOrdered: '1 day ago',
+    status: 'low-stock',
+  },
+  {
+    id: '3',
+    name: 'Ribeye Steak',
+    category: 'Meat',
+    quantity: 45,
+    unit: 'kg',
+    minStock: 25,
+    maxStock: 80,
+    unitCost: 22.0,
+    totalValue: 990.0,
+    supplier: 'Premium Meats Co.',
+    lastOrdered: '3 days ago',
+    status: 'in-stock',
+  },
+  {
+    id: '4',
+    name: 'Olive Oil (Extra Virgin)',
+    category: 'Pantry',
+    quantity: 8,
+    unit: 'bottles',
+    minStock: 12,
+    maxStock: 50,
+    unitCost: 15.0,
+    totalValue: 120.0,
+    supplier: 'Mediterranean Imports',
+    lastOrdered: '5 days ago',
+    status: 'low-stock',
+  },
+  {
+    id: '5',
+    name: 'Fresh Basil',
+    category: 'Produce',
+    quantity: 2,
+    unit: 'bunches',
+    minStock: 5,
+    maxStock: 20,
+    unitCost: 3.5,
+    totalValue: 7.0,
+    supplier: 'Green Farms',
+    lastOrdered: '1 day ago',
+    status: 'out-of-stock',
+  },
+  {
+    id: '6',
+    name: 'Truffle Oil',
+    category: 'Pantry',
+    quantity: 15,
+    unit: 'bottles',
+    minStock: 5,
+    maxStock: 30,
+    unitCost: 45.0,
+    totalValue: 675.0,
+    supplier: 'Gourmet Imports',
+    lastOrdered: '1 week ago',
+    status: 'in-stock',
+  },
+  {
+    id: '7',
+    name: 'Arborio Rice',
+    category: 'Pantry',
+    quantity: 60,
+    unit: 'kg',
+    minStock: 30,
+    maxStock: 150,
+    unitCost: 4.5,
+    totalValue: 270.0,
+    supplier: 'Italian Imports',
+    lastOrdered: '4 days ago',
+    status: 'in-stock',
+  },
+  {
+    id: '8',
+    name: 'Heavy Cream',
+    category: 'Dairy',
+    quantity: 10,
+    unit: 'liters',
+    minStock: 20,
+    maxStock: 100,
+    unitCost: 6.0,
+    totalValue: 60.0,
+    supplier: 'Local Dairy Farm',
+    lastOrdered: '1 day ago',
+    status: 'low-stock',
+  },
 ];
 
 const alerts = [
-  { id: '1', type: 'error' as const, title: 'Fresh Basil is out of stock', message: 'Immediate reorder required for menu items', action: { label: 'Order Now', onClick: () => {} } },
-  { id: '2', type: 'warning' as const, title: '3 items below minimum stock', message: 'Atlantic Salmon, Olive Oil, Heavy Cream', action: { label: 'Review', onClick: () => {} } },
+  {
+    id: '1',
+    type: 'error' as const,
+    title: 'Fresh Basil is out of stock',
+    message: 'Immediate reorder required for menu items',
+    action: { label: 'Order Now', onClick: () => {} },
+  },
+  {
+    id: '2',
+    type: 'warning' as const,
+    title: '3 items below minimum stock',
+    message: 'Atlantic Salmon, Olive Oil, Heavy Cream',
+    action: { label: 'Review', onClick: () => {} },
+  },
 ];
 
 const recentActivity = [
-  { id: '1', type: 'inventory' as const, title: 'Stock updated', description: 'Chicken Breast +50kg received', timestamp: '10 minutes ago', status: 'success' as const },
-  { id: '2', type: 'alert' as const, title: 'Low stock alert', description: 'Fresh Basil below minimum', timestamp: '30 minutes ago', status: 'warning' as const },
-  { id: '3', type: 'inventory' as const, title: 'Purchase order created', description: 'PO-2024-0154 for $1,240', timestamp: '1 hour ago', status: 'info' as const },
-  { id: '4', type: 'inventory' as const, title: 'Waste logged', description: '3kg chicken breast expired', timestamp: '2 hours ago', status: 'warning' as const },
+  {
+    id: '1',
+    type: 'inventory' as const,
+    title: 'Stock updated',
+    description: 'Chicken Breast +50kg received',
+    timestamp: '10 minutes ago',
+    status: 'success' as const,
+  },
+  {
+    id: '2',
+    type: 'alert' as const,
+    title: 'Low stock alert',
+    description: 'Fresh Basil below minimum',
+    timestamp: '30 minutes ago',
+    status: 'warning' as const,
+  },
+  {
+    id: '3',
+    type: 'inventory' as const,
+    title: 'Purchase order created',
+    description: 'PO-2024-0154 for $1,240',
+    timestamp: '1 hour ago',
+    status: 'info' as const,
+  },
+  {
+    id: '4',
+    type: 'inventory' as const,
+    title: 'Waste logged',
+    description: '3kg chicken breast expired',
+    timestamp: '2 hours ago',
+    status: 'warning' as const,
+  },
 ];
 
 const categoryDistribution = [
@@ -76,9 +232,10 @@ const categoryDistribution = [
 
 export default function InventoryDashboardPage() {
   const [selectedItems, setSelectedItems] = useState<InventoryItem[]>([]);
+  const router = useRouter();
 
-  const lowStockCount = inventoryData.filter(i => i.status === 'low-stock').length;
-  const outOfStockCount = inventoryData.filter(i => i.status === 'out-of-stock').length;
+  const lowStockCount = inventoryData.filter((i) => i.status === 'low-stock').length;
+  const outOfStockCount = inventoryData.filter((i) => i.status === 'out-of-stock').length;
   const totalValue = inventoryData.reduce((acc, item) => acc + item.totalValue, 0);
 
   const columns: ColumnDef<InventoryItem>[] = [
@@ -101,7 +258,9 @@ export default function InventoryDashboardPage() {
         return (
           <div className="w-32">
             <div className="flex items-center justify-between text-xs mb-1">
-              <span>{item.quantity} {item.unit}</span>
+              <span>
+                {item.quantity} {item.unit}
+              </span>
               <span className={percentage < 25 ? 'text-red-600' : 'text-muted-foreground'}>
                 {percentage.toFixed(0)}%
               </span>
@@ -152,15 +311,18 @@ export default function InventoryDashboardPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push(`/inventory?item=${row.original.id}&action=edit`)}>
               <Edit className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push(`/inventory?item=${row.original.id}&view=history`)}>
               <History className="mr-2 h-4 w-4" />
               View History
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">
+            <DropdownMenuItem
+              className="text-red-600"
+              onClick={() => router.push(`/inventory?item=${row.original.id}&action=delete`)}
+            >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>
@@ -189,14 +351,22 @@ export default function InventoryDashboardPage() {
         title="Inventory Management"
         description="Track stock levels and manage supplies"
         actions={
-          <Button>
+          <Button onClick={() => router.push('/inventory?action=add')}>
             <Plus className="mr-2 h-4 w-4" />
             Add Item
           </Button>
         }
       />
 
-      <AlertWidget alerts={alerts} />
+      <AlertWidget
+        alerts={alerts.map((alert) => ({
+          ...alert,
+          action:
+            alert.id === '1'
+              ? { label: 'Order Now', onClick: () => router.push('/inventory?action=create-po') }
+              : { label: 'Review', onClick: () => router.push('/inventory?filter=low-stock') },
+        }))}
+      />
 
       <DashboardGrid columns={4}>
         <StatCard
@@ -208,7 +378,7 @@ export default function InventoryDashboardPage() {
         />
         <StatCard
           title="Items In Stock"
-          value={inventoryData.filter(i => i.status === 'in-stock').length.toString()}
+          value={inventoryData.filter((i) => i.status === 'in-stock').length.toString()}
           icon={<Package className="h-5 w-5" />}
           variant="success"
         />
@@ -228,11 +398,7 @@ export default function InventoryDashboardPage() {
       </DashboardGrid>
 
       <DashboardGrid columns={3}>
-        <DashboardCard 
-          title="Stock Overview" 
-          description="Inventory by category"
-          className="col-span-2"
-        >
+        <DashboardCard title="Stock Overview" description="Inventory by category" className="col-span-2">
           <DataTable
             data={inventoryData}
             columns={columns}
@@ -259,9 +425,9 @@ export default function InventoryDashboardPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full rounded-full" 
-                          style={{ width: `${cat.value}%`, backgroundColor: cat.color }} 
+                        <div
+                          className="h-full rounded-full"
+                          style={{ width: `${cat.value}%`, backgroundColor: cat.color }}
                         />
                       </div>
                       <span className="text-sm font-medium w-8">{cat.value}%</span>
@@ -278,19 +444,39 @@ export default function InventoryDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" size="sm" className="justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="justify-start"
+                  onClick={() => router.push('/inventory?action=create-po')}
+                >
                   <ShoppingCart className="mr-2 h-4 w-4" />
                   New PO
                 </Button>
-                <Button variant="outline" size="sm" className="justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="justify-start"
+                  onClick={() => router.push('/inventory?action=receive')}
+                >
                   <Truck className="mr-2 h-4 w-4" />
                   Receive
                 </Button>
-                <Button variant="outline" size="sm" className="justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="justify-start"
+                  onClick={() => router.push('/inventory?action=transfer')}
+                >
                   <Warehouse className="mr-2 h-4 w-4" />
                   Transfer
                 </Button>
-                <Button variant="outline" size="sm" className="justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="justify-start"
+                  onClick={() => router.push('/inventory?action=log-waste')}
+                >
                   <TrendingDown className="mr-2 h-4 w-4" />
                   Log Waste
                 </Button>

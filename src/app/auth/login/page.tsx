@@ -1,6 +1,6 @@
 /**
- * Enhanced Login Page
- * Supports email/password and OTP login flows
+ * SOBOS Login Page
+ * Split-screen: hero image left, login form right
  */
 
 'use client';

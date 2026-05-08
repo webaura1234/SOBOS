@@ -1,15 +1,22 @@
 'use client';
 
-import { DashboardLayout, DashboardHeader, DashboardGrid, DashboardSection } from '@/components/dashboard/dashboard-layout';
+import {
+  DashboardLayout,
+  DashboardHeader,
+  DashboardGrid,
+  DashboardSection,
+} from '@/components/dashboard/dashboard-layout';
 import { StatCard, ActivityFeed, QuickActions } from '@/components/dashboard/dashboard-widgets';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
-import { 
-  Clock, 
-  DollarSign, 
-  ShoppingBag, 
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/config/routes';
+import {
+  Clock,
+  DollarSign,
+  ShoppingBag,
   Users,
   CheckCircle2,
   AlertCircle,
@@ -17,13 +24,13 @@ import {
   Plus,
   Calendar,
   Star,
-  TrendingUp
+  TrendingUp,
 } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
 const staffStats = {
   ordersServed: 47,
-  tipsEarned: 128.50,
+  tipsEarned: 128.5,
   hoursWorked: 6.5,
   rating: 4.9,
 };
@@ -39,18 +46,46 @@ const performanceData = [
 ];
 
 const recentActivity = [
-  { id: '1', type: 'order' as const, title: 'Order #12345 served', description: 'Table 12 - $156.50', timestamp: '5 minutes ago', status: 'success' as const },
-  { id: '2', type: 'payment' as const, title: 'Tip received', description: '$15.00 from Table 8', timestamp: '12 minutes ago', status: 'success' as const },
-  { id: '3', type: 'order' as const, title: 'Order #12344 completed', description: 'Table 5 - $89.00', timestamp: '18 minutes ago', status: 'success' as const },
-  { id: '4', type: 'staff' as const, title: 'Break ended', description: '15-minute break completed', timestamp: '30 minutes ago', status: 'info' as const },
+  {
+    id: '1',
+    type: 'order' as const,
+    title: 'Order #12345 served',
+    description: 'Table 12 - $156.50',
+    timestamp: '5 minutes ago',
+    status: 'success' as const,
+  },
+  {
+    id: '2',
+    type: 'payment' as const,
+    title: 'Tip received',
+    description: '$15.00 from Table 8',
+    timestamp: '12 minutes ago',
+    status: 'success' as const,
+  },
+  {
+    id: '3',
+    type: 'order' as const,
+    title: 'Order #12344 completed',
+    description: 'Table 5 - $89.00',
+    timestamp: '18 minutes ago',
+    status: 'success' as const,
+  },
+  {
+    id: '4',
+    type: 'staff' as const,
+    title: 'Break ended',
+    description: '15-minute break completed',
+    timestamp: '30 minutes ago',
+    status: 'info' as const,
+  },
 ];
 
 const activeTables = [
-  { table: 'T-01', guests: 4, status: 'dining', time: '45 min', total: 245.00 },
+  { table: 'T-01', guests: 4, status: 'dining', time: '45 min', total: 245.0 },
   { table: 'T-03', guests: 2, status: 'ordering', time: '10 min', total: 0 },
-  { table: 'T-05', guests: 6, status: 'dining', time: '30 min', total: 380.00 },
-  { table: 'T-08', guests: 2, status: 'payment', time: '65 min', total: 156.50 },
-  { table: 'T-12', guests: 4, status: 'dining', time: '20 min', total: 189.00 },
+  { table: 'T-05', guests: 6, status: 'dining', time: '30 min', total: 380.0 },
+  { table: 'T-08', guests: 2, status: 'payment', time: '65 min', total: 156.5 },
+  { table: 'T-12', guests: 4, status: 'dining', time: '20 min', total: 189.0 },
 ];
 
 const statusColors: Record<string, string> = {
@@ -61,6 +96,7 @@ const statusColors: Record<string, string> = {
 
 export default function StaffDashboardPage() {
   const [clockedIn, setClockedIn] = useState(true);
+  const router = useRouter();
 
   return (
     <DashboardLayout>
@@ -68,10 +104,7 @@ export default function StaffDashboardPage() {
         title="Staff Dashboard"
         description="Welcome back, Sarah"
         actions={
-          <Button 
-            variant={clockedIn ? "destructive" : "default"}
-            onClick={() => setClockedIn(!clockedIn)}
-          >
+          <Button variant={clockedIn ? 'destructive' : 'default'} onClick={() => setClockedIn(!clockedIn)}>
             <Clock className="mr-2 h-4 w-4" />
             {clockedIn ? 'Clock Out' : 'Clock In'}
           </Button>
@@ -153,9 +186,7 @@ export default function StaffDashboardPage() {
                     <Badge className={statusColors[table.status]}>
                       {table.status.charAt(0).toUpperCase() + table.status.slice(1)}
                     </Badge>
-                    {table.total > 0 && (
-                      <p className="text-sm font-medium mt-1">${table.total.toFixed(2)}</p>
-                    )}
+                    {table.total > 0 && <p className="text-sm font-medium mt-1">${table.total.toFixed(2)}</p>}
                   </div>
                 </div>
               ))}
@@ -165,17 +196,31 @@ export default function StaffDashboardPage() {
       </DashboardGrid>
 
       <DashboardGrid columns={2}>
-        <ActivityFeed 
-          activities={recentActivity} 
-          maxHeight={300}
-        />
-        
+        <ActivityFeed activities={recentActivity} maxHeight={300} />
+
         <QuickActions
           actions={[
-            { label: 'New Order', icon: <Plus className="h-4 w-4" />, onClick: () => {}, variant: 'primary' },
-            { label: 'My Schedule', icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
-            { label: 'Menu Items', icon: <UtensilsCrossed className="h-4 w-4" />, onClick: () => {} },
-            { label: 'Request Help', icon: <AlertCircle className="h-4 w-4" />, onClick: () => {} },
+            {
+              label: 'New Order',
+              icon: <Plus className="h-4 w-4" />,
+              onClick: () => router.push(ROUTES.protected.orders),
+              variant: 'primary',
+            },
+            {
+              label: 'My Schedule',
+              icon: <Calendar className="h-4 w-4" />,
+              onClick: () => router.push(`${ROUTES.protected.staff}?tab=schedule`),
+            },
+            {
+              label: 'Menu Items',
+              icon: <UtensilsCrossed className="h-4 w-4" />,
+              onClick: () => router.push(ROUTES.protected.menu),
+            },
+            {
+              label: 'Request Help',
+              icon: <AlertCircle className="h-4 w-4" />,
+              onClick: () => router.push(`${ROUTES.protected.staff}?tab=support`),
+            },
           ]}
         />
       </DashboardGrid>

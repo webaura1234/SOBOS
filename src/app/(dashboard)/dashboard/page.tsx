@@ -1,16 +1,24 @@
 'use client';
 
-import { DashboardLayout, DashboardHeader, DashboardGrid, DashboardSection, DashboardCard } from '@/components/dashboard/dashboard-layout';
+import {
+  DashboardLayout,
+  DashboardHeader,
+  DashboardGrid,
+  DashboardSection,
+  DashboardCard,
+} from '@/components/dashboard/dashboard-layout';
 import { StatCard, ActivityFeed, AlertWidget, KPICard, QuickActions } from '@/components/dashboard/dashboard-widgets';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState } from 'react';
-import { 
-  DollarSign, 
-  ShoppingBag, 
-  Users, 
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/config/routes';
+import {
+  DollarSign,
+  ShoppingBag,
+  Users,
   Store,
   TrendingUp,
   TrendingDown,
@@ -24,9 +32,22 @@ import {
   UtensilsCrossed,
   Package,
   AlertTriangle,
-  CheckCircle2
+  CheckCircle2,
 } from 'lucide-react';
-import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
 
 // Mock data
 const dashboardStats = {
@@ -70,23 +91,63 @@ const orderTypeDistribution = [
 ];
 
 const recentOrders = [
-  { id: '1', number: 'ORD-2024-0156', table: 'T-12', items: 4, total: 156.50, status: 'served', time: '12:30 PM' },
-  { id: '2', number: 'ORD-2024-0157', table: 'T-08', items: 3, total: 89.00, status: 'preparing', time: '12:45 PM' },
-  { id: '3', number: 'ORD-2024-0158', table: 'T-05', items: 2, total: 67.50, status: 'ready', time: '1:00 PM' },
-  { id: '4', number: 'ORD-2024-0159', table: null, items: 5, total: 124.00, status: 'confirmed', time: '1:15 PM' },
-  { id: '5', number: 'ORD-2024-0160', table: 'T-15', items: 6, total: 234.00, status: 'preparing', time: '1:30 PM' },
+  { id: '1', number: 'ORD-2024-0156', table: 'T-12', items: 4, total: 156.5, status: 'served', time: '12:30 PM' },
+  { id: '2', number: 'ORD-2024-0157', table: 'T-08', items: 3, total: 89.0, status: 'preparing', time: '12:45 PM' },
+  { id: '3', number: 'ORD-2024-0158', table: 'T-05', items: 2, total: 67.5, status: 'ready', time: '1:00 PM' },
+  { id: '4', number: 'ORD-2024-0159', table: null, items: 5, total: 124.0, status: 'confirmed', time: '1:15 PM' },
+  { id: '5', number: 'ORD-2024-0160', table: 'T-15', items: 6, total: 234.0, status: 'preparing', time: '1:30 PM' },
 ];
 
 const recentActivity = [
-  { id: '1', type: 'order' as const, title: 'New order received', description: '#12345 - $156.50 - Table 12', timestamp: '2 minutes ago', status: 'success' as const },
-  { id: '2', type: 'payment' as const, title: 'Payment processed', description: 'Order #12344 completed - $89.00', timestamp: '5 minutes ago', status: 'success' as const },
-  { id: '3', type: 'alert' as const, title: 'Low stock alert', description: 'Chicken Breast - Only 2kg remaining', timestamp: '10 minutes ago', status: 'warning' as const },
-  { id: '4', type: 'staff' as const, title: 'Staff checked in', description: 'Chef Marco started shift', timestamp: '15 minutes ago', status: 'info' as const },
-  { id: '5', type: 'order' as const, title: 'Order ready for pickup', description: 'Order #12343 - Delivery', timestamp: '18 minutes ago', status: 'success' as const },
+  {
+    id: '1',
+    type: 'order' as const,
+    title: 'New order received',
+    description: '#12345 - $156.50 - Table 12',
+    timestamp: '2 minutes ago',
+    status: 'success' as const,
+  },
+  {
+    id: '2',
+    type: 'payment' as const,
+    title: 'Payment processed',
+    description: 'Order #12344 completed - $89.00',
+    timestamp: '5 minutes ago',
+    status: 'success' as const,
+  },
+  {
+    id: '3',
+    type: 'alert' as const,
+    title: 'Low stock alert',
+    description: 'Chicken Breast - Only 2kg remaining',
+    timestamp: '10 minutes ago',
+    status: 'warning' as const,
+  },
+  {
+    id: '4',
+    type: 'staff' as const,
+    title: 'Staff checked in',
+    description: 'Chef Marco started shift',
+    timestamp: '15 minutes ago',
+    status: 'info' as const,
+  },
+  {
+    id: '5',
+    type: 'order' as const,
+    title: 'Order ready for pickup',
+    description: 'Order #12343 - Delivery',
+    timestamp: '18 minutes ago',
+    status: 'success' as const,
+  },
 ];
 
 const alerts = [
-  { id: '1', type: 'warning' as const, title: '5 items running low on stock', message: 'Review inventory and reorder soon', action: { label: 'View Inventory', onClick: () => {} } },
+  {
+    id: '1',
+    type: 'warning' as const,
+    title: '5 items running low on stock',
+    message: 'Review inventory and reorder soon',
+  },
   { id: '2', type: 'info' as const, title: 'Peak hours approaching', message: 'Expected high volume from 6-9 PM' },
 ];
 
@@ -100,6 +161,7 @@ const topSellingItems = [
 
 export default function MainDashboardPage() {
   const [activeTab, setActiveTab] = useState('today');
+  const router = useRouter();
 
   const statusColors: Record<string, string> = {
     served: 'bg-emerald-100 text-emerald-800',
@@ -115,11 +177,11 @@ export default function MainDashboardPage() {
         description="Overview of your restaurant operations"
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => setActiveTab('today')}>
               <Calendar className="mr-2 h-4 w-4" />
               Today
             </Button>
-            <Button size="sm">
+            <Button size="sm" onClick={() => router.push(ROUTES.protected.orders)}>
               <Plus className="mr-2 h-4 w-4" />
               New Order
             </Button>
@@ -127,7 +189,13 @@ export default function MainDashboardPage() {
         }
       />
 
-      <AlertWidget alerts={alerts} />
+      <AlertWidget
+        alerts={alerts.map((alert) =>
+          alert.id === '1'
+            ? { ...alert, action: { label: 'View Inventory', onClick: () => router.push('/inventory') } }
+            : alert
+        )}
+      />
 
       <DashboardGrid columns={4}>
         <StatCard
@@ -196,7 +264,7 @@ export default function MainDashboardPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-base">Hourly Revenue</CardTitle>
-                    <CardDescription>Today's performance by hour</CardDescription>
+                    <CardDescription>Today&apos;s performance by hour</CardDescription>
                   </div>
                   <Badge variant="outline">Live</Badge>
                 </div>
@@ -206,21 +274,21 @@ export default function MainDashboardPage() {
                   <AreaChart data={hourlyData}>
                     <defs>
                       <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis dataKey="hour" stroke="#888" fontSize={12} />
                     <YAxis stroke="#888" fontSize={12} tickFormatter={(v) => `$${v}`} />
                     <Tooltip formatter={(v) => [`$${Number(v)}`, 'Revenue']} />
-                    <Area 
-                      type="monotone" 
-                      dataKey="revenue" 
-                      stroke="#3b82f6" 
+                    <Area
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#3b82f6"
                       strokeWidth={2}
-                      fillOpacity={1} 
-                      fill="url(#colorRevenue)" 
+                      fillOpacity={1}
+                      fill="url(#colorRevenue)"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -259,7 +327,9 @@ export default function MainDashboardPage() {
                   {orderTypeDistribution.map((type) => (
                     <div key={type.name} className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: type.color }} />
-                      <span className="text-sm text-muted-foreground">{type.name} ({type.value}%)</span>
+                      <span className="text-sm text-muted-foreground">
+                        {type.name} ({type.value}%)
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -279,7 +349,7 @@ export default function MainDashboardPage() {
                 <BarChart data={weeklyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="day" stroke="#888" fontSize={12} />
-                  <YAxis yAxisId="left" stroke="#888" fontSize={12} tickFormatter={(v) => `$${v/1000}k`} />
+                  <YAxis yAxisId="left" stroke="#888" fontSize={12} tickFormatter={(v) => `$${v / 1000}k`} />
                   <YAxis yAxisId="right" orientation="right" stroke="#888" fontSize={12} />
                   <Tooltip />
                   <Bar yAxisId="left" dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Revenue" />
@@ -315,9 +385,7 @@ export default function MainDashboardPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-medium text-sm">${order.total.toFixed(2)}</p>
-                  <Badge className={`text-xs ${statusColors[order.status]}`}>
-                    {order.status}
-                  </Badge>
+                  <Badge className={`text-xs ${statusColors[order.status]}`}>{order.status}</Badge>
                 </div>
               </div>
             ))}
@@ -407,12 +475,25 @@ export default function MainDashboardPage() {
 
       <QuickActions
         actions={[
-          { label: 'New Order', icon: <Plus className="h-4 w-4" />, onClick: () => {}, variant: 'primary' },
-          { label: 'Manage Menu', icon: <UtensilsCrossed className="h-4 w-4" />, onClick: () => {} },
-          { label: 'View Tables', icon: <Store className="h-4 w-4" />, onClick: () => {} },
-          { label: 'Inventory', icon: <Package className="h-4 w-4" />, onClick: () => {} },
-          { label: 'Staff', icon: <Users className="h-4 w-4" />, onClick: () => {} },
-          { label: 'Reports', icon: <TrendingUp className="h-4 w-4" />, onClick: () => {} },
+          {
+            label: 'New Order',
+            icon: <Plus className="h-4 w-4" />,
+            onClick: () => router.push(ROUTES.protected.orders),
+            variant: 'primary',
+          },
+          {
+            label: 'Manage Menu',
+            icon: <UtensilsCrossed className="h-4 w-4" />,
+            onClick: () => router.push(ROUTES.protected.menu),
+          },
+          { label: 'View Tables', icon: <Store className="h-4 w-4" />, onClick: () => router.push('/tables') },
+          { label: 'Inventory', icon: <Package className="h-4 w-4" />, onClick: () => router.push('/inventory') },
+          { label: 'Staff', icon: <Users className="h-4 w-4" />, onClick: () => router.push(ROUTES.protected.staff) },
+          {
+            label: 'Reports',
+            icon: <TrendingUp className="h-4 w-4" />,
+            onClick: () => router.push(ROUTES.protected.reports),
+          },
         ]}
       />
     </DashboardLayout>

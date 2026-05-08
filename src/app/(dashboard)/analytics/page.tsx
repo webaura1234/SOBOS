@@ -1,16 +1,22 @@
 'use client';
 
-import { DashboardLayout, DashboardHeader, DashboardGrid, DashboardSection, DashboardCard } from '@/components/dashboard/dashboard-layout';
+import {
+  DashboardLayout,
+  DashboardHeader,
+  DashboardGrid,
+  DashboardSection,
+  DashboardCard,
+} from '@/components/dashboard/dashboard-layout';
 import { StatCard, ChartWidget, ActivityFeed } from '@/components/dashboard/dashboard-widgets';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState } from 'react';
-import { 
-  DollarSign, 
-  TrendingUp, 
-  Users, 
+import {
+  DollarSign,
+  TrendingUp,
+  Users,
   ShoppingBag,
   Calendar,
   Download,
@@ -19,9 +25,25 @@ import {
   PieChart,
   LineChart,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
 } from 'lucide-react';
-import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, PieChart as RePieChart, Pie, Cell, ComposedChart } from 'recharts';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  LineChart as ReLineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  PieChart as RePieChart,
+  Pie,
+  Cell,
+  ComposedChart,
+} from 'recharts';
 
 // Mock analytics data
 const revenueData = [
@@ -95,11 +117,11 @@ export default function AnalyticsDashboardPage() {
         description="Deep insights into restaurant performance"
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => setTimeRange('week')}>
               <Calendar className="mr-2 h-4 w-4" />
               Last 7 Days
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => window.print()}>
               <Download className="mr-2 h-4 w-4" />
               Export
             </Button>
@@ -148,8 +170,22 @@ export default function AnalyticsDashboardPage() {
                     <YAxis yAxisId="left" stroke="#888" fontSize={12} tickFormatter={(v) => `$${v}`} />
                     <YAxis yAxisId="right" orientation="right" stroke="#888" fontSize={12} />
                     <Tooltip />
-                    <Area yAxisId="left" type="monotone" dataKey="revenue" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} />
-                    <Line yAxisId="right" type="monotone" dataKey="orders" stroke="#10b981" strokeWidth={2} dot={false} />
+                    <Area
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#3b82f6"
+                      fill="#3b82f6"
+                      fillOpacity={0.1}
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="orders"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                      dot={false}
+                    />
                   </ComposedChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -217,12 +253,10 @@ export default function AnalyticsDashboardPage() {
                   <div key={month.month}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium">{month.month}</span>
-                      <span className="text-sm text-muted-foreground">
-                        ${(month.revenue / 1000).toFixed(0)}k
-                      </span>
+                      <span className="text-sm text-muted-foreground">${(month.revenue / 1000).toFixed(0)}k</span>
                     </div>
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className="h-full bg-primary rounded-full transition-all"
                         style={{ width: `${Math.min((month.revenue / month.target) * 100, 100)}%` }}
                       />
@@ -231,8 +265,13 @@ export default function AnalyticsDashboardPage() {
                       <span className="text-xs text-muted-foreground">
                         Target: ${(month.target / 1000).toFixed(0)}k
                       </span>
-                      <span className={month.revenue >= month.target ? 'text-emerald-600 text-xs' : 'text-amber-600 text-xs'}>
-                        {month.revenue >= month.target ? '+' : ''}{((month.revenue - month.target) / month.target * 100).toFixed(1)}%
+                      <span
+                        className={
+                          month.revenue >= month.target ? 'text-emerald-600 text-xs' : 'text-amber-600 text-xs'
+                        }
+                      >
+                        {month.revenue >= month.target ? '+' : ''}
+                        {(((month.revenue - month.target) / month.target) * 100).toFixed(1)}%
                       </span>
                     </div>
                   </div>
@@ -294,10 +333,17 @@ export default function AnalyticsDashboardPage() {
                 <ComposedChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="month" stroke="#888" fontSize={12} />
-                  <YAxis stroke="#888" fontSize={12} tickFormatter={(v) => `$${v/1000}k`} />
+                  <YAxis stroke="#888" fontSize={12} tickFormatter={(v) => `$${v / 1000}k`} />
                   <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, '']} />
                   <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Revenue" />
-                  <Line type="monotone" dataKey="target" stroke="#ef4444" strokeWidth={2} strokeDasharray="5 5" name="Target" />
+                  <Line
+                    type="monotone"
+                    dataKey="target"
+                    stroke="#ef4444"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    name="Target"
+                  />
                 </ComposedChart>
               </ResponsiveContainer>
             </CardContent>
@@ -324,7 +370,7 @@ export default function AnalyticsDashboardPage() {
                     </div>
                     <div className="ml-4 w-32">
                       <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full bg-primary rounded-full"
                           style={{ width: `${(cat.revenue / 150000) * 100}%` }}
                         />

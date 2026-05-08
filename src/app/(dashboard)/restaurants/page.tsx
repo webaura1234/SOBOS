@@ -9,12 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, MapPin, Phone } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/config/routes';
 
 export default function RestaurantsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
+  const router = useRouter();
 
   const { data, isLoading } = useRestaurants({ page, limit: 10, search, filters: { status } });
 
@@ -29,7 +31,7 @@ export default function RestaurantsPage() {
         title="Restaurants"
         description="Manage your restaurant locations"
         actions={
-          <Button>
+          <Button onClick={() => router.push('/restaurants?action=add')}>
             <Plus className="mr-2 h-4 w-4" />
             Add Restaurant
           </Button>
@@ -61,7 +63,7 @@ export default function RestaurantsPage() {
           title="No restaurants found"
           description="You haven't created any restaurants yet. Add your first restaurant to get started."
           actionLabel="Add Restaurant"
-          action={() => {}}
+          action={() => router.push('/restaurants?action=add')}
         />
       ) : (
         <DataTable
@@ -75,9 +77,7 @@ export default function RestaurantsPage() {
                   <Link href={ROUTES.protected.restaurantDetail(item.id)} className="font-medium hover:underline">
                     {item.name}
                   </Link>
-                  {item.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-1">{item.description}</p>
-                  )}
+                  {item.description && <p className="text-sm text-muted-foreground line-clamp-1">{item.description}</p>}
                 </div>
               ),
             },

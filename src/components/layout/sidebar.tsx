@@ -1,13 +1,29 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/store/ui-store';
 import { useAuthStore } from '@/store/auth-store';
 import { useMediaQuery } from '@/hooks';
 import { ROUTES } from '@/config/routes';
-import { LayoutDashboard, Store, ShoppingCart, UtensilsCrossed, Users, BarChart3, Settings, ChevronLeft, ChevronRight, LogOut, X, ChefHat, Package, Table2, Shield } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Store,
+  ShoppingCart,
+  UtensilsCrossed,
+  Users,
+  BarChart3,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+  X,
+  ChefHat,
+  Package,
+  Table2,
+  Shield,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -26,15 +42,15 @@ const mainNav = [
 ];
 
 // Admin navigation items
-const adminNav = [
-  { label: 'Platform Admin', href: '/admin', icon: Shield },
-];
+const adminNav = [{ label: 'Platform Admin', href: '/admin', icon: Shield }];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { sidebarOpen, sidebarCollapsed, toggleSidebarCollapsed, setSidebarOpen } = useUIStore();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
 
   return (
     <>
@@ -48,7 +64,12 @@ export function Sidebar() {
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
-        <div className={cn('flex h-16 items-center border-b px-4', sidebarCollapsed ? 'justify-center' : 'justify-between')}>
+        <div
+          className={cn(
+            'flex h-16 items-center border-b px-4',
+            sidebarCollapsed ? 'justify-center' : 'justify-between'
+          )}
+        >
           {!sidebarCollapsed && (
             <Link href={ROUTES.protected.dashboard} className="flex items-center gap-2">
               <span className="text-lg font-bold tracking-tight">RestaurantOS</span>
@@ -73,7 +94,9 @@ export function Sidebar() {
                   href={item.href}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                    isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                     sidebarCollapsed && 'justify-center px-2'
                   )}
                   onClick={() => !isDesktop && setSidebarOpen(false)}
@@ -101,7 +124,15 @@ export function Sidebar() {
                 <p className="truncate text-xs text-muted-foreground">{user?.email || ''}</p>
               </div>
             )}
-            <Button variant="ghost" size="icon" className="shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0"
+              onClick={() => {
+                logout();
+                router.push('/auth/login');
+              }}
+            >
               <LogOut className="h-4 w-4" />
             </Button>
           </div>

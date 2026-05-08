@@ -15,14 +15,7 @@ import {
   type RowSelectionState,
 } from '@tanstack/react-table';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -30,18 +23,13 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   ChevronLeft,
   ChevronRight,
@@ -157,7 +145,7 @@ export function DataTable<TData>({
   // Add selection column if enabled
   const allColumns = React.useMemo(() => {
     if (!enableRowSelection) return columns;
-    
+
     const selectionColumn: ColumnDef<TData> = {
       id: 'select',
       header: ({ table }) => (
@@ -179,7 +167,7 @@ export function DataTable<TData>({
       enableHiding: false,
       size: 40,
     };
-    
+
     return [selectionColumn, ...columns];
   }, [columns, enableRowSelection]);
 
@@ -228,12 +216,7 @@ export function DataTable<TData>({
 
   // Error state
   if (isError) {
-    return (
-      <DataTableError
-        message={errorMessage || 'Failed to load data'}
-        onRetry={onRefresh}
-      />
-    );
+    return <DataTableError message={errorMessage || 'Failed to load data'} onRetry={onRefresh} />;
   }
 
   return (
@@ -262,7 +245,7 @@ export function DataTable<TData>({
               )}
             </div>
           )}
-          
+
           {filterable && filters && (
             <DropdownMenu>
               <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground h-9">
@@ -270,7 +253,9 @@ export function DataTable<TData>({
                 Filters
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 {filters}
               </DropdownMenuContent>
@@ -294,9 +279,7 @@ export function DataTable<TData>({
                       key={index}
                       onClick={() => action.onClick(selectedRows)}
                       disabled={action.disabled?.(selectedRows)}
-                      className={cn(
-                        action.variant === 'destructive' && 'text-red-600 focus:text-red-600'
-                      )}
+                      className={cn(action.variant === 'destructive' && 'text-red-600 focus:text-red-600')}
                     >
                       {action.icon}
                       {action.label}
@@ -329,7 +312,9 @@ export function DataTable<TData>({
                 Columns
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
+                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 {table
                   .getAllColumns()
@@ -359,15 +344,11 @@ export function DataTable<TData>({
 
       {/* Table */}
       <div
-        className={cn(
-          'rounded-md border bg-white',
-          stickyHeader && 'overflow-auto',
-          maxHeight && 'relative'
-        )}
+        className={cn('rounded-md border bg-white', stickyHeader && 'overflow-auto', maxHeight && 'relative')}
         style={{ maxHeight: maxHeight || undefined }}
       >
         <Table>
-          <TableHeader className={cn(stickyHeader && 'sticky top-0 z-10 bg-white')}> 
+          <TableHeader className={cn(stickyHeader && 'sticky top-0 z-10 bg-white')}>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -381,12 +362,8 @@ export function DataTable<TData>({
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     <div className="flex items-center gap-1">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                      {header.column.getCanSort() && (
-                        <ChevronsUpDown className="h-3 w-3 text-muted-foreground" />
-                      )}
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                      {header.column.getCanSort() && <ChevronsUpDown className="h-3 w-3 text-muted-foreground" />}
                     </div>
                   </TableHead>
                 ))}
@@ -405,41 +382,27 @@ export function DataTable<TData>({
                     className={cn(
                       'border-b transition-colors hover:bg-muted/50',
                       row.getIsSelected() && 'bg-muted',
-                      typeof rowClassName === 'function'
-                        ? rowClassName(row.original)
-                        : rowClassName,
+                      typeof rowClassName === 'function' ? rowClassName(row.original) : rowClassName,
                       onRowClick && 'cursor-pointer'
                     )}
                     onClick={() => onRowClick?.(row.original)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
+                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                     ))}
                   </motion.tr>
                 ))}
               </AnimatePresence>
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={allColumns.length}
-                  className="h-32 text-center"
-                >
+                <TableCell colSpan={allColumns.length} className="h-32 text-center">
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <p className="text-sm font-medium text-muted-foreground">
                       {globalFilter ? `No results for "${globalFilter}"` : emptyMessage}
                     </p>
-                    {emptyDescription && (
-                      <p className="text-xs text-muted-foreground">{emptyDescription}</p>
-                    )}
+                    {emptyDescription && <p className="text-xs text-muted-foreground">{emptyDescription}</p>}
                     {emptyAction && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={emptyAction.onClick}
-                        className="mt-2"
-                      >
+                      <Button variant="outline" size="sm" onClick={emptyAction.onClick} className="mt-2">
                         {emptyAction.label}
                       </Button>
                     )}
@@ -458,9 +421,7 @@ export function DataTable<TData>({
             <span>
               Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
             </span>
-            <span className="hidden sm:inline">
-              ({table.getFilteredRowModel().rows.length} total rows)
-            </span>
+            <span className="hidden sm:inline">({table.getFilteredRowModel().rows.length} total rows)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2">
@@ -584,13 +545,7 @@ function DataTableError({ message, onRetry }: { message: string; onRetry?: () =>
 // Cell Components
 // ============================================================================
 
-export function DataTableCell({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+export function DataTableCell({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={cn('flex items-center gap-2', className)}>{children}</div>;
 }
 
@@ -604,16 +559,15 @@ export function DataTableBadge({
   return <Badge variant={variant}>{children}</Badge>;
 }
 
-export function DataTableActions({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+export function DataTableActions({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className={cn('inline-flex items-center justify-center rounded-md h-8 w-8 hover:bg-accent hover:text-accent-foreground', className)}>
+      <DropdownMenuTrigger
+        className={cn(
+          'inline-flex items-center justify-center rounded-md h-8 w-8 hover:bg-accent hover:text-accent-foreground',
+          className
+        )}
+      >
         <span className="sr-only">Open menu</span>
         <MoreHorizontal className="h-4 w-4" />
       </DropdownMenuTrigger>

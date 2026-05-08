@@ -1,17 +1,25 @@
 'use client';
 
-import { DashboardLayout, DashboardHeader, DashboardGrid, DashboardSection, DashboardCard } from '@/components/dashboard/dashboard-layout';
+import {
+  DashboardLayout,
+  DashboardHeader,
+  DashboardGrid,
+  DashboardSection,
+  DashboardCard,
+} from '@/components/dashboard/dashboard-layout';
 import { StatCard, ActivityFeed, AlertWidget, KPICard, QuickActions } from '@/components/dashboard/dashboard-widgets';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
-import { 
-  DollarSign, 
-  Users, 
-  ShoppingBag, 
-  ChefHat, 
-  TrendingUp, 
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/config/routes';
+import {
+  DollarSign,
+  Users,
+  ShoppingBag,
+  ChefHat,
+  TrendingUp,
   TrendingDown,
   Clock,
   Star,
@@ -19,9 +27,21 @@ import {
   Calendar,
   Plus,
   UtensilsCrossed,
-  Table2
+  Table2,
 } from 'lucide-react';
-import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from 'recharts';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  LineChart,
+  Line,
+} from 'recharts';
 
 // Mock data for restaurant owner
 const restaurantStats = {
@@ -64,15 +84,56 @@ const weeklyComparison = [
 ];
 
 const recentActivity = [
-  { id: '1', type: 'order' as const, title: 'New order received', description: '#12345 - $156.50 - Table 12', timestamp: '2 minutes ago', status: 'success' as const },
-  { id: '2', type: 'payment' as const, title: 'Payment processed', description: 'Order #12344 completed - $89.00', timestamp: '5 minutes ago', status: 'success' as const },
-  { id: '3', type: 'alert' as const, title: 'Low stock alert', description: 'Chicken Breast - Only 2kg remaining', timestamp: '10 minutes ago', status: 'warning' as const },
-  { id: '4', type: 'staff' as const, title: 'Staff checked in', description: 'Chef Marco started shift', timestamp: '15 minutes ago', status: 'info' as const },
-  { id: '5', type: 'order' as const, title: 'Order ready for pickup', description: 'Order #12343 - Delivery', timestamp: '18 minutes ago', status: 'success' as const },
+  {
+    id: '1',
+    type: 'order' as const,
+    title: 'New order received',
+    description: '#12345 - $156.50 - Table 12',
+    timestamp: '2 minutes ago',
+    status: 'success' as const,
+  },
+  {
+    id: '2',
+    type: 'payment' as const,
+    title: 'Payment processed',
+    description: 'Order #12344 completed - $89.00',
+    timestamp: '5 minutes ago',
+    status: 'success' as const,
+  },
+  {
+    id: '3',
+    type: 'alert' as const,
+    title: 'Low stock alert',
+    description: 'Chicken Breast - Only 2kg remaining',
+    timestamp: '10 minutes ago',
+    status: 'warning' as const,
+  },
+  {
+    id: '4',
+    type: 'staff' as const,
+    title: 'Staff checked in',
+    description: 'Chef Marco started shift',
+    timestamp: '15 minutes ago',
+    status: 'info' as const,
+  },
+  {
+    id: '5',
+    type: 'order' as const,
+    title: 'Order ready for pickup',
+    description: 'Order #12343 - Delivery',
+    timestamp: '18 minutes ago',
+    status: 'success' as const,
+  },
 ];
 
 const alerts = [
-  { id: '1', type: 'warning' as const, title: '5 items running low on stock', message: 'Review inventory and reorder soon', action: { label: 'View Inventory', onClick: () => {} } },
+  {
+    id: '1',
+    type: 'warning' as const,
+    title: '5 items running low on stock',
+    message: 'Review inventory and reorder soon',
+    action: { label: 'View Inventory', onClick: () => {} },
+  },
   { id: '2', type: 'info' as const, title: 'Peak hours approaching', message: 'Expected high volume from 6-9 PM' },
 ];
 
@@ -86,6 +147,7 @@ const topSellingItems = [
 
 export default function RestaurantOwnerDashboardPage() {
   const [lastUpdated, setLastUpdated] = useState(new Date());
+  const router = useRouter();
 
   const handleRefresh = () => {
     setLastUpdated(new Date());
@@ -99,11 +161,11 @@ export default function RestaurantOwnerDashboardPage() {
         onRefresh={handleRefresh}
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleRefresh}>
               <Calendar className="mr-2 h-4 w-4" />
               Today
             </Button>
-            <Button size="sm">
+            <Button size="sm" onClick={() => router.push(ROUTES.protected.orders)}>
               <Plus className="mr-2 h-4 w-4" />
               New Order
             </Button>
@@ -111,7 +173,13 @@ export default function RestaurantOwnerDashboardPage() {
         }
       />
 
-      <AlertWidget alerts={alerts} />
+      <AlertWidget
+        alerts={alerts.map((alert) =>
+          alert.id === '1'
+            ? { ...alert, action: { label: 'View Inventory', onClick: () => router.push('/inventory') } }
+            : alert
+        )}
+      />
 
       <DashboardGrid columns={4}>
         <StatCard
@@ -180,7 +248,7 @@ export default function RestaurantOwnerDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-base">Hourly Revenue</CardTitle>
-                <CardDescription>Today's revenue by hour</CardDescription>
+                <CardDescription>Today&apos;s revenue by hour</CardDescription>
               </div>
               <Badge variant="outline">Live</Badge>
             </div>
@@ -190,21 +258,21 @@ export default function RestaurantOwnerDashboardPage() {
               <AreaChart data={hourlyRevenue}>
                 <defs>
                   <linearGradient id="colorRevenue2" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="hour" stroke="#888" fontSize={12} />
                 <YAxis stroke="#888" fontSize={12} tickFormatter={(value) => `$${value}`} />
                 <Tooltip formatter={(value) => [`$${Number(value)}`, 'Revenue']} />
-                <Area 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#10b981" 
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#10b981"
                   strokeWidth={2}
-                  fillOpacity={1} 
-                  fill="url(#colorRevenue2)" 
+                  fillOpacity={1}
+                  fill="url(#colorRevenue2)"
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -225,7 +293,7 @@ export default function RestaurantOwnerDashboardPage() {
               <BarChart data={weeklyComparison}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="day" stroke="#888" fontSize={12} />
-                <YAxis stroke="#888" fontSize={12} tickFormatter={(value) => `$${value/1000}k`} />
+                <YAxis stroke="#888" fontSize={12} tickFormatter={(value) => `$${value / 1000}k`} />
                 <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, '']} />
                 <Bar dataKey="current" fill="#3b82f6" radius={[4, 4, 0, 0]} name="This Week" />
                 <Bar dataKey="previous" fill="#e5e7eb" radius={[4, 4, 0, 0]} name="Last Week" />
@@ -255,19 +323,37 @@ export default function RestaurantOwnerDashboardPage() {
           </div>
         </DashboardCard>
 
-        <ActivityFeed 
-          activities={recentActivity.slice(0, 6)} 
-          maxHeight={320}
-        />
+        <ActivityFeed activities={recentActivity.slice(0, 6)} maxHeight={320} />
 
         <QuickActions
           actions={[
-            { label: 'New Order', icon: <Plus className="h-4 w-4" />, onClick: () => {}, variant: 'primary' },
-            { label: 'Manage Menu', icon: <UtensilsCrossed className="h-4 w-4" />, onClick: () => {} },
-            { label: 'Staff Schedule', icon: <Users className="h-4 w-4" />, onClick: () => {} },
-            { label: 'Inventory', icon: <AlertCircle className="h-4 w-4" />, onClick: () => {} },
-            { label: 'Reports', icon: <TrendingUp className="h-4 w-4" />, onClick: () => {} },
-            { label: 'Settings', icon: <Clock className="h-4 w-4" />, onClick: () => {} },
+            {
+              label: 'New Order',
+              icon: <Plus className="h-4 w-4" />,
+              onClick: () => router.push(ROUTES.protected.orders),
+              variant: 'primary',
+            },
+            {
+              label: 'Manage Menu',
+              icon: <UtensilsCrossed className="h-4 w-4" />,
+              onClick: () => router.push(ROUTES.protected.menu),
+            },
+            {
+              label: 'Staff Schedule',
+              icon: <Users className="h-4 w-4" />,
+              onClick: () => router.push(`${ROUTES.protected.staff}?tab=schedule`),
+            },
+            { label: 'Inventory', icon: <AlertCircle className="h-4 w-4" />, onClick: () => router.push('/inventory') },
+            {
+              label: 'Reports',
+              icon: <TrendingUp className="h-4 w-4" />,
+              onClick: () => router.push(ROUTES.protected.reports),
+            },
+            {
+              label: 'Settings',
+              icon: <Clock className="h-4 w-4" />,
+              onClick: () => router.push(ROUTES.protected.settings),
+            },
           ]}
         />
       </DashboardGrid>

@@ -1,16 +1,22 @@
 'use client';
 
-import { DashboardLayout, DashboardHeader, DashboardGrid, DashboardSection } from '@/components/dashboard/dashboard-layout';
+import {
+  DashboardLayout,
+  DashboardHeader,
+  DashboardGrid,
+  DashboardSection,
+} from '@/components/dashboard/dashboard-layout';
 import { StatCard, ActivityFeed, AlertWidget } from '@/components/dashboard/dashboard-widgets';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { 
-  Table2, 
-  Users, 
-  Clock, 
+import { useRouter } from 'next/navigation';
+import {
+  Table2,
+  Users,
+  Clock,
   DollarSign,
   Plus,
   MoreHorizontal,
@@ -19,9 +25,20 @@ import {
   CheckCircle2,
   AlertCircle,
   ChefHat,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
 
 interface Table {
   id: string;
@@ -35,18 +52,72 @@ interface Table {
 }
 
 const tables: Table[] = [
-  { id: '1', number: 'T-01', capacity: 4, status: 'occupied', currentGuests: 4, orderTotal: 245.00, elapsedTime: '45 min', server: 'Sarah' },
+  {
+    id: '1',
+    number: 'T-01',
+    capacity: 4,
+    status: 'occupied',
+    currentGuests: 4,
+    orderTotal: 245.0,
+    elapsedTime: '45 min',
+    server: 'Sarah',
+  },
   { id: '2', number: 'T-02', capacity: 2, status: 'available' },
-  { id: '3', number: 'T-03', capacity: 6, status: 'occupied', currentGuests: 5, orderTotal: 380.00, elapsedTime: '30 min', server: 'Mike' },
+  {
+    id: '3',
+    number: 'T-03',
+    capacity: 6,
+    status: 'occupied',
+    currentGuests: 5,
+    orderTotal: 380.0,
+    elapsedTime: '30 min',
+    server: 'Mike',
+  },
   { id: '4', number: 'T-04', capacity: 2, status: 'reserved' },
-  { id: '5', number: 'T-05', capacity: 4, status: 'occupied', currentGuests: 3, orderTotal: 156.50, elapsedTime: '20 min', server: 'Sarah' },
-  { id: '6', number: 'T-06', capacity: 8, status: 'occupied', currentGuests: 7, orderTotal: 520.00, elapsedTime: '55 min', server: 'John' },
+  {
+    id: '5',
+    number: 'T-05',
+    capacity: 4,
+    status: 'occupied',
+    currentGuests: 3,
+    orderTotal: 156.5,
+    elapsedTime: '20 min',
+    server: 'Sarah',
+  },
+  {
+    id: '6',
+    number: 'T-06',
+    capacity: 8,
+    status: 'occupied',
+    currentGuests: 7,
+    orderTotal: 520.0,
+    elapsedTime: '55 min',
+    server: 'John',
+  },
   { id: '7', number: 'T-07', capacity: 2, status: 'cleaning' },
-  { id: '8', number: 'T-08', capacity: 4, status: 'occupied', currentGuests: 2, orderTotal: 89.00, elapsedTime: '10 min', server: 'Mike' },
+  {
+    id: '8',
+    number: 'T-08',
+    capacity: 4,
+    status: 'occupied',
+    currentGuests: 2,
+    orderTotal: 89.0,
+    elapsedTime: '10 min',
+    server: 'Mike',
+  },
   { id: '9', number: 'T-09', capacity: 6, status: 'available' },
   { id: '10', number: 'T-10', capacity: 4, status: 'reserved' },
   { id: '11', number: 'T-11', capacity: 2, status: 'available' },
-  { id: '12', number: 'T-12', capacity: 4, status: 'occupied', currentGuests: 4, orderTotal: 178.00, elapsedTime: '35 min', server: 'Sarah' },
+  {
+    id: '12',
+    number: 'T-12',
+    capacity: 4,
+    status: 'occupied',
+    currentGuests: 4,
+    orderTotal: 178.0,
+    elapsedTime: '35 min',
+    server: 'Sarah',
+  },
 ];
 
 const hourlyOccupancy = [
@@ -67,22 +138,57 @@ const statusDistribution = [
 ];
 
 const recentActivity = [
-  { id: '1', type: 'order' as const, title: 'Table T-01 check requested', description: 'Bill ready for payment', timestamp: '2 minutes ago', status: 'info' as const },
-  { id: '2', type: 'staff' as const, title: 'Table T-07 cleaned', description: 'Ready for next guests', timestamp: '5 minutes ago', status: 'success' as const },
-  { id: '3', type: 'order' as const, title: 'New guests seated', description: 'Table T-05 - Party of 3', timestamp: '10 minutes ago', status: 'info' as const },
-  { id: '4', type: 'alert' as const, title: 'Table T-06 waiting long', description: '45 minutes elapsed', timestamp: '15 minutes ago', status: 'warning' as const },
+  {
+    id: '1',
+    type: 'order' as const,
+    title: 'Table T-01 check requested',
+    description: 'Bill ready for payment',
+    timestamp: '2 minutes ago',
+    status: 'info' as const,
+  },
+  {
+    id: '2',
+    type: 'staff' as const,
+    title: 'Table T-07 cleaned',
+    description: 'Ready for next guests',
+    timestamp: '5 minutes ago',
+    status: 'success' as const,
+  },
+  {
+    id: '3',
+    type: 'order' as const,
+    title: 'New guests seated',
+    description: 'Table T-05 - Party of 3',
+    timestamp: '10 minutes ago',
+    status: 'info' as const,
+  },
+  {
+    id: '4',
+    type: 'alert' as const,
+    title: 'Table T-06 waiting long',
+    description: '45 minutes elapsed',
+    timestamp: '15 minutes ago',
+    status: 'warning' as const,
+  },
 ];
 
 const alerts = [
-  { id: '1', type: 'warning' as const, title: 'High occupancy rate', message: '90% of tables currently occupied', action: { label: 'View Floor Plan', onClick: () => {} } },
+  {
+    id: '1',
+    type: 'warning' as const,
+    title: 'High occupancy rate',
+    message: '90% of tables currently occupied',
+    action: { label: 'View Floor Plan', onClick: () => {} },
+  },
 ];
 
 export default function TablesDashboardPage() {
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
+  const router = useRouter();
 
-  const availableTables = tables.filter(t => t.status === 'available').length;
-  const occupiedTables = tables.filter(t => t.status === 'occupied').length;
-  const totalGuests = tables.filter(t => t.status === 'occupied').reduce((acc, t) => acc + (t.currentGuests || 0), 0);
+  const availableTables = tables.filter((t) => t.status === 'available').length;
+  const occupiedTables = tables.filter((t) => t.status === 'occupied').length;
+  const totalGuests = tables.filter((t) => t.status === 'occupied').reduce((acc, t) => acc + (t.currentGuests || 0), 0);
   const avgTurnTime = '52 min';
 
   const statusColors: Record<string, string> = {
@@ -99,11 +205,11 @@ export default function TablesDashboardPage() {
         description="Monitor and manage restaurant floor"
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => router.refresh()}>
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
-            <Button size="sm">
+            <Button size="sm" onClick={() => router.push('/tables?action=add')}>
               <Plus className="mr-2 h-4 w-4" />
               Add Table
             </Button>
@@ -111,14 +217,15 @@ export default function TablesDashboardPage() {
         }
       />
 
-      <AlertWidget alerts={alerts} />
+      <AlertWidget
+        alerts={alerts.map((alert) => ({
+          ...alert,
+          action: { label: 'View Floor Plan', onClick: () => setSelectedTable(tables[0]) },
+        }))}
+      />
 
       <DashboardGrid columns={4}>
-        <StatCard
-          title="Total Tables"
-          value={tables.length.toString()}
-          icon={<Table2 className="h-5 w-5" />}
-        />
+        <StatCard title="Total Tables" value={tables.length.toString()} icon={<Table2 className="h-5 w-5" />} />
         <StatCard
           title="Available"
           value={availableTables.toString()}
@@ -237,11 +344,20 @@ export default function TablesDashboardPage() {
                       <span className="font-medium">{selectedTable.server}</span>
                     </div>
                     <div className="pt-4 border-t space-y-2">
-                      <Button className="w-full" size="sm">
+                      <Button
+                        className="w-full"
+                        size="sm"
+                        onClick={() => router.push(`/orders?table=${selectedTable.number}`)}
+                      >
                         <UtensilsCrossed className="mr-2 h-4 w-4" />
                         Add Order
                       </Button>
-                      <Button variant="outline" className="w-full" size="sm">
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        size="sm"
+                        onClick={() => router.push(`/orders?table=${selectedTable.number}&action=payment`)}
+                      >
                         <CreditCard className="mr-2 h-4 w-4" />
                         Process Payment
                       </Button>

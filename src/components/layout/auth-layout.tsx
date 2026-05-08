@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react';
+import Image from 'next/image';
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -7,22 +8,21 @@ interface AuthLayoutProps {
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="flex min-h-screen">
-      <div className="flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-12">
-        <div className="mx-auto w-full max-w-sm">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight">RestaurantOS</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Sign in to your account to continue</p>
-          </div>
-          {children}
-        </div>
+      {/* ── Left panel — full hero image ── */}
+      <div className="hidden lg:block lg:w-[58%] relative overflow-hidden">
+        <Image
+          src="/login-hero.png"
+          alt="SOBOS Restaurant POS"
+          fill
+          className="object-cover object-center"
+          priority
+          unoptimized
+        />
       </div>
-      <div className="hidden w-1/2 bg-gradient-to-br from-primary/90 to-primary lg:flex lg:flex-col lg:items-center lg:justify-center lg:p-12">
-        <div className="max-w-md text-white">
-          <h2 className="text-3xl font-bold">Manage your restaurant operations</h2>
-          <p className="mt-4 text-lg text-white/80">
-            Streamline orders, manage staff, track performance, and grow your business with our comprehensive platform.
-          </p>
-        </div>
+
+      {/* ── Right panel — login form ── */}
+      <div className="flex w-full flex-col justify-center px-8 py-12 lg:w-[42%] bg-white">
+        <div className="mx-auto w-full max-w-sm">{children}</div>
       </div>
     </div>
   );
