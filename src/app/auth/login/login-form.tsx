@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLogin, useRequestOTP, useVerifyOTP } from '@/hooks/api/use-auth';
 import { toast } from 'sonner';
 import { Loader2, Mail, Phone, ArrowRight, ChefHat } from 'lucide-react';
+import { SplashAnimation } from '@/components/splash/splash-animation';
+import { SplashAnimation } from '@/components/splash/splash-animation';
 
 const emailSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -39,10 +41,15 @@ export function LoginForm() {
   const [loginMethod, setLoginMethod] = useState<'email' | 'otp'>('email');
   const [otpSent, setOtpSent] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [showSplash, setShowSplash] = useState(false);
 
-  const { mutate: login, isPending: isLoggingIn } = useLogin();
+  const { mutate: login, isPending: isLoggingIn } = useLogin({
+    onSuccess: () => setShowSplash(true),
+  });
   const { mutate: requestOTP, isPending: isRequestingOTP } = useRequestOTP();
-  const { mutate: verifyOTP, isPending: isVerifyingOTP } = useVerifyOTP();
+  const { mutate: verifyOTP, isPending: isVerifyingOTP } = useVerifyOTP({
+    onSuccess: () => setShowSplash(true),
+  });
 
   const {
     register: registerEmail,
@@ -90,6 +97,10 @@ export function LoginForm() {
 
   const onOTPSubmit = (data: OTPVerifyData) => {
     verifyOTP({ phone: phoneNumber, otp: data.otp, restaurantId: 'rst_001' });
+  };
+
+  const handleSplashComplete = () => {
+    router.push(callbackUrl);
   };
 
   return (
@@ -282,6 +293,10 @@ export function LoginForm() {
           <p>Owner: owner@bella.com / owner123</p>
         </div>
       </div>
+
+      <AnimatePresence>
+        {showSplash && <SplashAnimation onComplete={handleSplashComplete} />}
+      </AnimatePresence>
     </div>
   );
 }

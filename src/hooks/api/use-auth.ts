@@ -20,11 +20,10 @@ import type {
 } from '@/types/api';
 
 // Login hook
-export function useLogin() {
+export function useLogin(options?: { onSuccess?: () => void }) {
   const queryClient = useQueryClient();
   const setUser = useAuthStore((state) => state.setUser);
   const setLoading = useAuthStore((state) => state.setLoading);
-  const router = useRouter();
 
   return useMutation({
     mutationFn: authApi.login,
@@ -39,10 +38,8 @@ export function useLogin() {
       queryClient.invalidateQueries({ queryKey: ['auth'] });
       toast.success(`Welcome back, ${user.name}!`);
       
-      // Wait for state to propagate before navigation
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 50);
+      // Call parent onSuccess if provided (for splash animation)
+      options?.onSuccess?.();
     },
     onError: (error: Error) => {
       setLoading(false);
@@ -65,10 +62,9 @@ export function useRequestOTP() {
 }
 
 // OTP Verify hook
-export function useVerifyOTP() {
+export function useVerifyOTP(options?: { onSuccess?: () => void }) {
   const queryClient = useQueryClient();
   const setUser = useAuthStore((state) => state.setUser);
-  const router = useRouter();
 
   return useMutation({
     mutationFn: authApi.verifyOTP,
@@ -79,10 +75,8 @@ export function useVerifyOTP() {
       queryClient.invalidateQueries({ queryKey: ['auth'] });
       toast.success('Login successful!');
       
-      // Wait for state to propagate before navigation
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 50);
+      // Call parent onSuccess if provided (for splash animation)
+      options?.onSuccess?.();
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Invalid OTP');
