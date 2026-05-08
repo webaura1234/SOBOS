@@ -141,17 +141,6 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Rewrites
-  async rewrites() {
-    return [
-      // API proxy for backend
-      {
-        source: '/api/proxy/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
-      },
-    ];
-  },
-
   // Environment variables that should be available at build time
   env: {
     APP_VERSION: process.env.npm_package_version || '1.0.0',
