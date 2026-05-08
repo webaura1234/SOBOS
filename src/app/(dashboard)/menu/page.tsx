@@ -599,6 +599,8 @@ export default function MenuPage() {
                       onClick={() => toggleAvailability(item.id)}
                       className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 backdrop-blur-sm shadow-sm border hover:bg-white transition-colors"
                       title={item.isAvailable ? 'Mark unavailable' : 'Mark available'}
+                      aria-pressed={item.isAvailable}
+                      aria-label={item.isAvailable ? 'Mark item unavailable' : 'Mark item available'}
                     >
                       {item.isAvailable ? (
                         <Eye className="h-3.5 w-3.5 text-emerald-600" />

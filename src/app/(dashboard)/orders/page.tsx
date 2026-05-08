@@ -10,8 +10,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ShoppingBag,
@@ -48,7 +50,7 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import { DEMO_ITEMS } from '../menu/page';
+import { DEMO_ITEMS } from '@/lib/demo-data';
 
 interface Order {
   id: string;
@@ -484,8 +486,14 @@ function OrderDetailPanel({ order, onClose }: { order: Order; onClose: () => voi
 
 export default function OrdersDashboardPage() {
   const [selectedTab, setSelectedTab] = useState('all');
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Read query params to control panels
   const showNew = searchParams.get('new') === 'true';
@@ -526,6 +534,21 @@ export default function OrdersDashboardPage() {
 
   return (
     <>
+      {isLoading ? (
+        <div className="space-y-6 p-6">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-[250px]" />
+            <Skeleton className="h-4 w-[350px]" />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-[120px] rounded-lg" />
+            ))}
+          </div>
+          <Skeleton className="h-[400px] rounded-lg" />
+        </div>
+      ) : (
+        <>
       <DashboardHeader
         title="Bella Vista Restaurant"
         description="Owner Dashboard - Today's overview"
@@ -653,10 +676,11 @@ export default function OrdersDashboardPage() {
                             size="icon"
                             className="h-8 w-8"
                             onClick={() => router.push(`/orders?order=${order.id}`)}
+                            aria-label={`View order ${order.orderNumber}`}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => window.print()}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => window.print()} aria-label={`Print order ${order.orderNumber}`}>
                             <Printer className="h-4 w-4" />
                           </Button>
                         </div>
@@ -775,6 +799,8 @@ export default function OrdersDashboardPage() {
           </>
         )}
       </AnimatePresence>
+        </>
+      )}
     </>
   );
 }

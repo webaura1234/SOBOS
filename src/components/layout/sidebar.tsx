@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -44,6 +45,15 @@ const mainNav = [
 // Admin navigation items
 const adminNav = [{ label: 'Platform Admin', href: '/admin', icon: Shield }];
 
+// Filter nav items based on user role
+function useVisibleNav() {
+  const user = useAuthStore((state) => state.user);
+  return React.useMemo(() => {
+    if (user?.role === 'platform_admin') return [...mainNav, ...adminNav];
+    return mainNav;
+  }, [user?.role]);
+}
+
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -51,11 +61,21 @@ export function Sidebar() {
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const visibleNav = useVisibleNav();
 
   return (
     <>
       {sidebarOpen && !isDesktop && (
-        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setSidebarOpen(false);
+          }}
+          role="button"
+          aria-label="Close sidebar"
+          tabIndex={0}
+        />
       )}
       <aside
         className={cn(
@@ -75,18 +95,18 @@ export function Sidebar() {
               <span className="text-lg font-bold tracking-tight">RestaurantOS</span>
             </Link>
           )}
-          <Button variant="ghost" size="icon" className="hidden lg:flex" onClick={toggleSidebarCollapsed}>
+          <Button variant="ghost" size="icon" className="hidden lg:flex" onClick={toggleSidebarCollapsed} aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
             {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
           {!isDesktop && (
-            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)}>
+            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} aria-label="Close sidebar">
               <X className="h-4 w-4" />
             </Button>
           )}
         </div>
         <ScrollArea className="flex-1 py-4">
           <nav className="space-y-1 px-2">
-            {mainNav.map((item) => {
+            {visibleNav.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
               const Icon = item.icon;
               const link = (
@@ -100,14 +120,17 @@ export function Sidebar() {
                     sidebarCollapsed && 'justify-center px-2'
                   )}
                   onClick={() => !isDesktop && setSidebarOpen(false)}
+                  aria-current={isActive ? 'page' : undefined}
                 >
-                  <Icon className="h-5 w-5 shrink-0" />
+                  <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
                   {!sidebarCollapsed && <span>{item.label}</span>}
                 </Link>
               );
               return sidebarCollapsed ? (
                 <Tooltip key={item.href}>
-                  <TooltipTrigger>{link}</TooltipTrigger>
+                  <TooltipTrigger asChild>
+                    <span>{link}</span>
+                  </TooltipTrigger>
                   <TooltipContent side="right">{item.label}</TooltipContent>
                 </Tooltip>
               ) : (
@@ -132,6 +155,7 @@ export function Sidebar() {
                 logout();
                 router.push('/auth/login');
               }}
+              aria-label="Logout"
             >
               <LogOut className="h-4 w-4" />
             </Button>

@@ -24,6 +24,7 @@ export function useLogin() {
   const queryClient = useQueryClient();
   const setUser = useAuthStore((state) => state.setUser);
   const setLoading = useAuthStore((state) => state.setLoading);
+  const router = useRouter();
 
   return useMutation({
     mutationFn: authApi.login,
@@ -34,9 +35,14 @@ export function useLogin() {
       const { user, tokens } = data.data;
       tokenManager.setTokens(tokens.accessToken, tokens.refreshToken, tokens.expiresIn || 3600);
       setUser(user);
-      setLoading(false); // ← FIX: reset loading state after successful login
+      setLoading(false);
       queryClient.invalidateQueries({ queryKey: ['auth'] });
       toast.success(`Welcome back, ${user.name}!`);
+      
+      // Wait for state to propagate before navigation
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 50);
     },
     onError: (error: Error) => {
       setLoading(false);
@@ -62,6 +68,7 @@ export function useRequestOTP() {
 export function useVerifyOTP() {
   const queryClient = useQueryClient();
   const setUser = useAuthStore((state) => state.setUser);
+  const router = useRouter();
 
   return useMutation({
     mutationFn: authApi.verifyOTP,
@@ -71,6 +78,11 @@ export function useVerifyOTP() {
       setUser(user);
       queryClient.invalidateQueries({ queryKey: ['auth'] });
       toast.success('Login successful!');
+      
+      // Wait for state to propagate before navigation
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 50);
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Invalid OTP');

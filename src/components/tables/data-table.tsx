@@ -449,6 +449,7 @@ export function DataTable<TData>({
                 className="h-8 w-8"
                 onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
+                aria-label="First page"
               >
                 <ChevronsLeft className="h-4 w-4" />
               </Button>
@@ -458,6 +459,7 @@ export function DataTable<TData>({
                 className="h-8 w-8"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
+                aria-label="Previous page"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -467,6 +469,7 @@ export function DataTable<TData>({
                 className="h-8 w-8"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
+                aria-label="Next page"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -476,6 +479,7 @@ export function DataTable<TData>({
                 className="h-8 w-8"
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 disabled={!table.getCanNextPage()}
+                aria-label="Last page"
               >
                 <ChevronsRight className="h-4 w-4" />
               </Button>

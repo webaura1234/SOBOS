@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useState } from 'react';
+
 import {
   DollarSign,
   TrendingUp,
@@ -107,8 +107,6 @@ const kpiData = [
 ];
 
 export default function AnalyticsDashboardPage() {
-  const [timeRange, setTimeRange] = useState('week');
-
   return (
     <>
       <DashboardHeader
@@ -116,7 +114,7 @@ export default function AnalyticsDashboardPage() {
         description="Deep insights into restaurant performance"
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setTimeRange('week')}>
+            <Button variant="outline" size="sm">
               <Calendar className="mr-2 h-4 w-4" />
               Last 7 Days
             </Button>

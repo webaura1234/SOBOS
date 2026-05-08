@@ -9,8 +9,10 @@ import { StatCard, ActivityFeed, AlertWidget } from '@/components/dashboard/dash
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Table2,
@@ -134,6 +136,7 @@ const statusDistribution = [
   { name: 'Occupied', value: 6, color: '#ef4444' },
   { name: 'Available', value: 4, color: '#22c55e' },
   { name: 'Reserved', value: 2, color: '#3b82f6' },
+  { name: 'Cleaning', value: 1, color: '#f59e0b' },
 ];
 
 const recentActivity = [
@@ -183,7 +186,13 @@ const alerts = [
 
 export default function TablesDashboardPage() {
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const availableTables = tables.filter((t) => t.status === 'available').length;
   const occupiedTables = tables.filter((t) => t.status === 'occupied').length;
@@ -199,6 +208,21 @@ export default function TablesDashboardPage() {
 
   return (
     <>
+      {isLoading ? (
+        <div className="space-y-6 p-6">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-[250px]" />
+            <Skeleton className="h-4 w-[350px]" />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-[120px] rounded-lg" />
+            ))}
+          </div>
+          <Skeleton className="h-[400px] rounded-lg" />
+        </div>
+      ) : (
+        <>
       <DashboardHeader
         title="Table Management"
         description="Monitor and manage restaurant floor"
@@ -308,7 +332,7 @@ export default function TablesDashboardPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">{selectedTable.number} Details</CardTitle>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedTable(null)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedTable(null)} aria-label="Close table details">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </div>
@@ -399,6 +423,8 @@ export default function TablesDashboardPage() {
           <ActivityFeed activities={recentActivity} maxHeight={200} />
         </div>
       </DashboardGrid>
+        </>
+      )}
     </>
   );
 }

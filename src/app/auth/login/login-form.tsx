@@ -73,11 +73,7 @@ export function LoginForm() {
   });
 
   const onEmailSubmit = (data: EmailFormData) => {
-    login(data, {
-      onSuccess: () => {
-        router.push(callbackUrl);
-      },
-    });
+    login(data);
   };
 
   const onPhoneSubmit = (data: OTPRequestData) => {
@@ -93,21 +89,14 @@ export function LoginForm() {
   };
 
   const onOTPSubmit = (data: OTPVerifyData) => {
-    verifyOTP(
-      { phone: phoneNumber, otp: data.otp, restaurantId: 'rst_001' },
-      {
-        onSuccess: () => {
-          router.push(callbackUrl);
-        },
-      }
-    );
+    verifyOTP({ phone: phoneNumber, otp: data.otp, restaurantId: 'rst_001' });
   };
 
   return (
     <div className="space-y-6">
       {/* Logo — top of right panel, exactly like SOBOS reference */}
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-9 h-9 bg-[#E54D2E] rounded-lg flex items-center justify-center flex-shrink-0">
+        <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--color-brand)' }}>
           <ChefHat className="h-5 w-5 text-white" />
         </div>
         <div className="leading-tight">
@@ -144,8 +133,20 @@ export function LoginForm() {
           >
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="name@company.com" {...registerEmail('email')} />
-              {emailErrors.email && <p className="text-sm text-red-500">{emailErrors.email.message}</p>}
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="name@company.com"
+                {...registerEmail('email')}
+                aria-invalid={!!emailErrors.email}
+                aria-describedby={emailErrors.email ? 'email-error' : undefined}
+              />
+              {emailErrors.email && (
+                <p id="email-error" className="text-sm text-red-500" role="alert" aria-live="polite">
+                  {emailErrors.email.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -154,8 +155,20 @@ export function LoginForm() {
                   Forgot password?
                 </Link>
               </div>
-              <Input id="password" type="password" placeholder="Enter your password" {...registerEmail('password')} />
-              {emailErrors.password && <p className="text-sm text-red-500">{emailErrors.password.message}</p>}
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                {...registerEmail('password')}
+                aria-invalid={!!emailErrors.password}
+                aria-describedby={emailErrors.password ? 'password-error' : undefined}
+              />
+              {emailErrors.password && (
+                <p id="password-error" className="text-sm text-red-500" role="alert" aria-live="polite">
+                  {emailErrors.password.message}
+                </p>
+              )}
             </div>
             <Button type="submit" className="w-full" disabled={isLoggingIn}>
               {isLoggingIn ? (
@@ -180,8 +193,19 @@ export function LoginForm() {
             >
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" {...registerPhone('phone')} />
-                {phoneErrors.phone && <p className="text-sm text-red-500">{phoneErrors.phone.message}</p>}
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+1 (555) 123-4567"
+                  {...registerPhone('phone')}
+                  aria-invalid={!!phoneErrors.phone}
+                  aria-describedby={phoneErrors.phone ? 'phone-error' : undefined}
+                />
+                {phoneErrors.phone && (
+                  <p id="phone-error" className="text-sm text-red-500" role="alert" aria-live="polite">
+                    {phoneErrors.phone.message}
+                  </p>
+                )}
                 <p className="text-xs text-muted-foreground">
                   We&apos;ll send you a one-time password to verify your identity
                 </p>
@@ -217,8 +241,14 @@ export function LoginForm() {
                   placeholder="123456"
                   className="text-center text-2xl tracking-widest"
                   {...registerOTP('otp')}
+                  aria-invalid={!!otpErrors.otp}
+                  aria-describedby={otpErrors.otp ? 'otp-error' : undefined}
                 />
-                {otpErrors.otp && <p className="text-sm text-red-500">{otpErrors.otp.message}</p>}
+                {otpErrors.otp && (
+                  <p id="otp-error" className="text-sm text-red-500" role="alert" aria-live="polite">
+                    {otpErrors.otp.message}
+                  </p>
+                )}
               </div>
               <Button type="submit" className="w-full" disabled={isVerifyingOTP}>
                 {isVerifyingOTP ? (

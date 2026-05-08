@@ -9,7 +9,8 @@ import { StatCard, ActivityFeed, AlertWidget } from '@/components/dashboard/dash
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
+import { ErrorBoundary } from '@/components/feedback/error-boundary';
+import { useState, useEffect } from 'react';
 import {
   Clock,
   ChefHat,
@@ -144,6 +145,11 @@ export default function KitchenDashboardPage() {
   const [orders, setOrders] = useState<KitchenOrder[]>(initialOrders);
   const [currentTime, setCurrentTime] = useState(new Date());
 
+  useEffect(() => {
+    const interval = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const updateOrderStatus = (orderId: string, newStatus: KitchenOrder['status']) => {
     setOrders((prev) => prev.map((order) => (order.id === orderId ? { ...order, status: newStatus } : order)));
   };
@@ -176,7 +182,8 @@ export default function KitchenDashboardPage() {
   };
 
   return (
-    <>
+    <ErrorBoundary>
+      <>
       <DashboardHeader
         title="Kitchen Display System"
         description="Live order management"
@@ -378,7 +385,7 @@ export default function KitchenDashboardPage() {
                       <div className="flex items-center justify-between">
                         <Badge variant="outline" className="text-emerald-600">
                           <Timer className="mr-1 h-3 w-3" />
-                          Waiting {order.elapsedTime - order.estimatedTime}m
+                          Waiting {Math.max(0, order.elapsedTime - order.estimatedTime)}m
                         </Badge>
                         <Button
                           size="sm"
@@ -445,6 +452,7 @@ export default function KitchenDashboardPage() {
           </CardContent>
         </Card>
       </DashboardGrid>
-    </>
+      </>
+    </ErrorBoundary>
   );
 }
