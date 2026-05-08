@@ -11,28 +11,35 @@ const LETTERS = ['S', 'O', 'B', 'O', 'S'];
 const QUOTE = 'Every great meal starts with great management.';
 
 export function SplashAnimation({ onComplete }: SplashAnimationProps) {
-  const [phase, setPhase] = useState<'idle' | 'letters' | 'quote' | 'hold' | 'exit'>('idle');
+  const [visibleLetters, setVisibleLetters] = useState(0);
+  const [showQuote, setShowQuote] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
     const timeline = async () => {
-      // Initial pause
-      await new Promise(r => setTimeout(r, 200));
+      // Initial pause - let screen settle
+      await new Promise(r => setTimeout(r, 400));
       
-      // Letters phase
-      setPhase('letters');
-      await new Promise(r => setTimeout(r, 1200));
+      // Reveal letters one by one (smooth stagger)
+      for (let i = 0; i < LETTERS.length; i++) {
+        setVisibleLetters(i + 1);
+        await new Promise(r => setTimeout(r, 150));
+      }
       
-      // Quote phase
-      setPhase('quote');
+      // Hold after letters complete
+      await new Promise(r => setTimeout(r, 500));
+      
+      // Fade in quote
+      setShowQuote(true);
+      
+      // Hold with quote visible
+      await new Promise(r => setTimeout(r, 1000));
+      
+      // Exit animation
+      setIsExiting(true);
+      
+      // Wait for exit to complete
       await new Promise(r => setTimeout(r, 800));
-      
-      // Hold phase
-      setPhase('hold');
-      await new Promise(r => setTimeout(r, 600));
-      
-      // Exit phase
-      setPhase('exit');
-      await new Promise(r => setTimeout(r, 600));
       
       onComplete();
     };
@@ -42,126 +49,152 @@ export function SplashAnimation({ onComplete }: SplashAnimationProps) {
 
   return (
     <div className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-white overflow-hidden">
-      {/* Animated background gradient */}
+      {/* Smooth gradient background */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-white via-gray-50 to-white"
+        className="absolute inset-0 bg-gradient-to-br from-white via-gray-50/50 to-white"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 1, ease: [0.4, 0, 0.2, 1] }}
       />
-      
-      {/* Subtle animated rings */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+
+      {/* Subtle animated rings - very gentle */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
         {[1, 2, 3].map((i) => (
           <motion.div
             key={i}
-            className="absolute rounded-full border border-gray-100"
-            style={{ width: i * 200, height: i * 200 }}
-            initial={{ scale: 0.8, opacity: 0 }}
+            className="absolute rounded-full"
+            style={{ 
+              width: i * 280, 
+              height: i * 280,
+              border: `1px solid rgba(148, 163, 184, ${0.08 * i})`,
+            }}
+            initial={{ scale: 0.5, opacity: 0 }}
             animate={{ 
-              scale: phase === 'exit' ? 1.5 : 1.2,
-              opacity: phase === 'exit' ? 0 : 0.3,
+              scale: isExiting ? 1.8 : 1,
+              opacity: isExiting ? 0 : 0.08 * i,
             }}
             transition={{ 
-              duration: 2,
-              delay: i * 0.3,
-              ease: [0.4, 0, 0.6, 1],
+              duration: 3,
+              delay: i * 0.4,
+              ease: [0.4, 0, 0.2, 1],
             }}
           />
         ))}
       </div>
 
-      {/* Main content */}
-      <div className="relative z-10 flex flex-col items-center">
-        {/* SOBOS letters */}
-        <div className="flex gap-2 md:gap-3 mb-6">
-          {LETTERS.map((letter, index) => (
-            <motion.span
-              key={index}
-              className="text-6xl sm:text-7xl md:text-8xl font-black tracking-tight relative"
-              style={{ color: '#0f172a' }}
-              initial={{ 
-                opacity: 0, 
-                y: 80,
-                rotateX: -90,
-                scale: 0.5,
-              }}
-              animate={phase !== 'exit' ? { 
-                opacity: 1, 
-                y: 0,
-                rotateX: 0,
-                scale: 1,
-              } : {
-                opacity: 0,
-                y: -30,
-                scale: 1.2,
-              }}
-              transition={{
-                duration: 0.7,
-                delay: phase === 'exit' ? index * 0.05 : 0.3 + index * 0.12,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
-              {letter}
-              {/* Subtle shine effect on first reveal */}
-              {phase === 'letters' && (
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent"
-                  initial={{ x: '-100%' }}
-                  animate={{ x: '100%' }}
-                  transition={{ duration: 0.6, delay: 0.5 + index * 0.12 }}
-                  style={{ mixBlendMode: 'overlay' }}
-                />
-              )}
-            </motion.span>
-          ))}
+      {/* Main content container */}
+      <div className="relative z-10 flex flex-col items-center justify-center">
+        {/* SOBOS letters container */}
+        <div className="flex gap-2 sm:gap-3 md:gap-4 mb-8">
+          {LETTERS.map((letter, index) => {
+            const isVisible = index < visibleLetters;
+            const isExit = isExiting;
+            
+            return (
+              <motion.div
+                key={index}
+                className="relative"
+                initial={{ 
+                  opacity: 0,
+                  y: 60,
+                  rotateX: -45,
+                  scale: 0.8,
+                }}
+                animate={isExit ? {
+                  opacity: 0,
+                  y: -40,
+                  scale: 1.1,
+                  filter: 'blur(8px)',
+                } : isVisible ? {
+                  opacity: 1,
+                  y: 0,
+                  rotateX: 0,
+                  scale: 1,
+                  filter: 'blur(0px)',
+                } : {}}
+                transition={{
+                  duration: 0.8,
+                  delay: isExit ? index * 0.08 : 0,
+                  ease: [0.25, 0.46, 0.45, 0.94],
+                }}
+              >
+                {/* Letter */}
+                <span
+                  className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight block"
+                  style={{ color: '#0f172a' }}
+                >
+                  {letter}
+                </span>
+                
+                {/* Subtle shine on reveal */}
+                {isVisible && !isExit && (
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent pointer-events-none"
+                    initial={{ x: '-150%', skewX: '-12deg' }}
+                    animate={{ x: '150%' }}
+                    transition={{ 
+                      duration: 0.7, 
+                      delay: index * 0.15 + 0.3,
+                      ease: [0.25, 0.46, 0.45, 0.94],
+                    }}
+                    style={{ mixBlendMode: 'overlay' }}
+                  />
+                )}
+              </motion.div>
+            );
+          })}
         </div>
         
-        {/* Quote */}
+        {/* Quote with decorative elements */}
         <AnimatePresence>
-          {(phase === 'quote' || phase === 'hold') && (
+          {showQuote && !isExiting && (
             <motion.div
-              className="flex flex-col items-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20, scale: 1.1 }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="flex flex-col items-center justify-center"
+              initial={{ opacity: 0, y: 24, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -16, scale: 1.05, filter: 'blur(4px)' }}
+              transition={{ 
+                duration: 0.7,
+                ease: [0.25, 0.46, 0.45, 0.94],
+              }}
             >
-              {/* Decorative line */}
+              {/* Top decorative line */}
               <motion.div
-                className="w-12 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent mb-4"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
+                className="w-16 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent mb-5"
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
               />
               
+              {/* Quote text */}
               <p
-                className="text-sm sm:text-base font-light text-center max-w-md px-4 tracking-wide"
-                style={{ color: '#64748b', fontWeight: 300 }}
+                className="text-xs sm:text-sm md:text-base font-extralight text-center px-6 tracking-[0.08em] leading-relaxed max-w-sm"
+                style={{ color: '#64748b', fontWeight: 200 }}
               >
                 {QUOTE}
               </p>
               
-              {/* Decorative line */}
+              {/* Bottom decorative line */}
               <motion.div
-                className="w-12 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent mt-4"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
+                className="w-16 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent mt-5"
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
               />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Exit overlay */}
+      {/* Smooth white fade-out overlay for exit */}
       <AnimatePresence>
-        {phase === 'exit' && (
+        {isExiting && (
           <motion.div
             className="absolute inset-0 bg-white z-20"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.4 }}
+            exit={{ opacity: 1 }}
+            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
           />
         )}
       </AnimatePresence>
