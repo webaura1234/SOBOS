@@ -4,6 +4,7 @@ import {
   DashboardGrid,
   DashboardSection,
   DashboardCard,
+  DashboardHeader,
 } from '@/components/dashboard/dashboard-layout';
 import { StatCard, ChartWidget, ActivityFeed } from '@/components/dashboard/dashboard-widgets';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

@@ -3,6 +3,7 @@
 import {
   DashboardGrid,
   DashboardSection,
+  DashboardHeader,
 } from '@/components/dashboard/dashboard-layout';
 import { StatCard, AlertWidget, ActivityFeed, ChartWidget } from '@/components/dashboard/dashboard-widgets';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

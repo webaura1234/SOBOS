@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  DashboardHeader,
   DashboardGrid,
   DashboardSection,
 } from '@/components/dashboard/dashboard-layout';

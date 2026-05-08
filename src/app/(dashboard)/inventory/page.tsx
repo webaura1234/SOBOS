@@ -4,6 +4,7 @@ import {
   DashboardGrid,
   DashboardSection,
   DashboardCard,
+  DashboardHeader,
 } from '@/components/dashboard/dashboard-layout';
 import { StatCard, AlertWidget, ActivityFeed } from '@/components/dashboard/dashboard-widgets';
 import { DataTable, BulkAction } from '@/components/tables/data-table';
