@@ -1,0 +1,36 @@
+export const ROUTES = {
+  public: {
+    home: '/',
+    login: '/auth/login',
+    register: '/auth/register',
+    forgotPassword: '/auth/forgot-password',
+    verifyEmail: '/auth/verify-email',
+  },
+  protected: {
+    dashboard: '/dashboard',
+    restaurants: '/restaurants',
+    restaurantDetail: (id: string) => `/restaurants/${id}`,
+    orders: '/orders',
+    orderDetail: (id: string) => `/orders/${id}`,
+    menu: '/menu',
+    menuCategories: '/menu/categories',
+    staff: '/staff',
+    reports: '/reports',
+    settings: '/settings',
+    profile: '/settings/profile',
+  },
+  admin: {
+    adminDashboard: '/admin',
+    manageRestaurants: '/admin/restaurants',
+    manageUsers: '/admin/users',
+    systemSettings: '/admin/settings',
+  },
+  api: {
+    auth: '/api/auth',
+    restaurants: '/api/restaurants',
+    orders: '/api/orders',
+    menu: '/api/menu',
+    staff: '/api/staff',
+    reports: '/api/reports',
+  },
+} as const;

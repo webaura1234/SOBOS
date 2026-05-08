@@ -1,0 +1,280 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useLogin, useRequestOTP, useVerifyOTP } from '@/hooks/api/use-auth';
+import { toast } from 'sonner';
+import { Loader2, Mail, Phone, ArrowRight, ChefHat } from 'lucide-react';
+
+const emailSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+const otpRequestSchema = z.object({
+  phone: z.string().min(10, 'Please enter a valid phone number'),
+});
+
+const otpVerifySchema = z.object({
+  otp: z.string().length(6, 'OTP must be 6 digits'),
+});
+
+type EmailFormData = z.infer<typeof emailSchema>;
+type OTPRequestData = z.infer<typeof otpRequestSchema>;
+type OTPVerifyData = z.infer<typeof otpVerifySchema>;
+
+export function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  const [loginMethod, setLoginMethod] = useState<'email' | 'otp'>('email');
+  const [otpSent, setOtpSent] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+
+  const { mutate: login, isPending: isLoggingIn } = useLogin();
+  const { mutate: requestOTP, isPending: isRequestingOTP } = useRequestOTP();
+  const { mutate: verifyOTP, isPending: isVerifyingOTP } = useVerifyOTP();
+
+  const {
+    register: registerEmail,
+    handleSubmit: handleEmailSubmit,
+    formState: { errors: emailErrors },
+  } = useForm<EmailFormData>({
+    resolver: zodResolver(emailSchema),
+  });
+
+  const {
+    register: registerPhone,
+    handleSubmit: handlePhoneSubmit,
+    formState: { errors: phoneErrors },
+  } = useForm<OTPRequestData>({
+    resolver: zodResolver(otpRequestSchema),
+  });
+
+  const {
+    register: registerOTP,
+    handleSubmit: handleOTPSubmit,
+    formState: { errors: otpErrors },
+  } = useForm<OTPVerifyData>({
+    resolver: zodResolver(otpVerifySchema),
+  });
+
+  const onEmailSubmit = (data: EmailFormData) => {
+    login(data, {
+      onSuccess: () => {
+        router.push(callbackUrl);
+      },
+    });
+  };
+
+  const onPhoneSubmit = (data: OTPRequestData) => {
+    requestOTP(
+      { phone: data.phone, restaurantId: 'rst_001' },
+      {
+        onSuccess: () => {
+          setPhoneNumber(data.phone);
+          setOtpSent(true);
+        },
+      }
+    );
+  };
+
+  const onOTPSubmit = (data: OTPVerifyData) => {
+    verifyOTP(
+      { phone: phoneNumber, otp: data.otp, restaurantId: 'rst_001' },
+      {
+        onSuccess: () => {
+          router.push(callbackUrl);
+        },
+      }
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center space-y-2">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 mb-4">
+          <ChefHat className="h-6 w-6 text-primary" />
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
+        <p className="text-sm text-muted-foreground">
+          Sign in to your RestaurantOS account
+        </p>
+      </div>
+
+      <Tabs value={loginMethod} onValueChange={(v) => setLoginMethod(v as 'email' | 'otp')}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="email" className="gap-2">
+            <Mail className="h-4 w-4" />
+            Email
+          </TabsTrigger>
+          <TabsTrigger value="otp" className="gap-2">
+            <Phone className="h-4 w-4" />
+            Phone
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="email" className="mt-4">
+            <motion.form
+              key="email-form"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              onSubmit={handleEmailSubmit(onEmailSubmit)}
+              className="space-y-4"
+            >
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@company.com"
+                  {...registerEmail('email')}
+                />
+                {emailErrors.email && (
+                  <p className="text-sm text-red-500">{emailErrors.email.message}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <Link
+                    href="/auth/forgot-password"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  {...registerEmail('password')}
+                />
+                {emailErrors.password && (
+                  <p className="text-sm text-red-500">{emailErrors.password.message}</p>
+                )}
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoggingIn}>
+                {isLoggingIn ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                )}
+                Sign In
+              </Button>
+            </motion.form>
+        </TabsContent>
+
+        <TabsContent value="otp" className="mt-4">
+          {!otpSent ? (
+            <motion.form
+              key="otp-request-form"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              onSubmit={handlePhoneSubmit(onPhoneSubmit)}
+              className="space-y-4"
+            >
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+1 (555) 123-4567"
+                    {...registerPhone('phone')}
+                  />
+                  {phoneErrors.phone && (
+                    <p className="text-sm text-red-500">{phoneErrors.phone.message}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    We&apos;ll send you a one-time password to verify your identity
+                  </p>
+                </div>
+                <Button type="submit" className="w-full" disabled={isRequestingOTP}>
+                  {isRequestingOTP ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                  )}
+                  Send OTP
+                </Button>
+              </motion.form>
+          ) : (
+            <motion.form
+              key="otp-verify-form"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              onSubmit={handleOTPSubmit(onOTPSubmit)}
+              className="space-y-4"
+            >
+                <div className="text-center mb-4">
+                  <p className="text-sm text-muted-foreground">
+                    Enter the 6-digit code sent to
+                  </p>
+                  <p className="font-medium">{phoneNumber}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="otp">Verification Code</Label>
+                  <Input
+                    id="otp"
+                    type="text"
+                    maxLength={6}
+                    placeholder="123456"
+                    className="text-center text-2xl tracking-widest"
+                    {...registerOTP('otp')}
+                  />
+                  {otpErrors.otp && (
+                    <p className="text-sm text-red-500">{otpErrors.otp.message}</p>
+                  )}
+                </div>
+                <Button type="submit" className="w-full" disabled={isVerifyingOTP}>
+                  {isVerifyingOTP ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                  )}
+                  Verify & Sign In
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => setOtpSent(false)}
+                >
+                  Change phone number
+                </Button>
+            </motion.form>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      <p className="text-center text-sm text-muted-foreground">
+        Don&apos;t have an account?{' '}
+        <Link href="/auth/register" className="text-primary hover:underline">
+          Create account
+        </Link>
+      </p>
+
+      {/* Demo Credentials */}
+      <div className="rounded-lg bg-muted p-4 text-sm">
+        <p className="font-medium mb-2">Demo Credentials:</p>
+        <div className="space-y-1 text-muted-foreground">
+          <p>Admin: admin@restaurantos.com / admin123</p>
+          <p>Manager: demo@restaurantos.com / demo123</p>
+          <p>Owner: owner@bella.com / owner123</p>
+        </div>
+      </div>
+    </div>
+  );
+}
