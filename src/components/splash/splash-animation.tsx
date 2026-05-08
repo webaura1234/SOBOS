@@ -32,8 +32,8 @@ export function SplashAnimation({ onComplete }: SplashAnimationProps) {
       // Fade in quote
       setShowQuote(true);
       
-      // Hold with quote visible
-      await new Promise(r => setTimeout(r, 1000));
+      // Hold with quote visible - 3 seconds
+      await new Promise(r => setTimeout(r, 3000));
       
       // Exit animation
       setIsExiting(true);
