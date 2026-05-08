@@ -15,7 +15,6 @@ import { useLogin, useRequestOTP, useVerifyOTP } from '@/hooks/api/use-auth';
 import { toast } from 'sonner';
 import { Loader2, Mail, Phone, ArrowRight, ChefHat } from 'lucide-react';
 import { SplashAnimation } from '@/components/splash/splash-animation';
-import { SplashAnimation } from '@/components/splash/splash-animation';
 
 const emailSchema = z.object({
   email: z.string().email('Invalid email address'),
