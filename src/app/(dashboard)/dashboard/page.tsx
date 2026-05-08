@@ -1,8 +1,6 @@
 'use client';
 
 import {
-  DashboardLayout,
-  DashboardHeader,
   DashboardGrid,
   DashboardSection,
   DashboardCard,
@@ -171,7 +169,7 @@ export default function MainDashboardPage() {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <DashboardHeader
         title="Dashboard"
         description="Overview of your restaurant operations"
@@ -496,6 +494,6 @@ export default function MainDashboardPage() {
           },
         ]}
       />
-    </DashboardLayout>
+    </>
   );
 }

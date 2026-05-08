@@ -1,13 +1,6 @@
 import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
 
-export default async function HomePage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('auth_token');
-
-  if (token) {
-    redirect('/dashboard');
-  }
-
-  redirect('/auth/login');
+export default function HomePage() {
+  // Always redirect to dashboard; AuthGuard will handle unauthenticated users client-side
+  redirect('/dashboard');
 }

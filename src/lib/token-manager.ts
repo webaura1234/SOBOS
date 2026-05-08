@@ -56,10 +56,10 @@ class TokenManager {
   }
 
   // Set tokens
-  setTokens(accessToken: string, refreshToken: string, expiresIn: number): void {
+  setTokens(accessToken: string, refreshToken: string, expiresIn?: number): void {
     if (typeof window === 'undefined') return;
     
-    const expiryTime = Date.now() + expiresIn * 1000;
+    const expiryTime = Date.now() + (expiresIn || 3600) * 1000; // ← FIX: default to 1 hour
     
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);

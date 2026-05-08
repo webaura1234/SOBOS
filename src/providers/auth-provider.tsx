@@ -9,6 +9,7 @@ import { useEffect } from 'react';
 import { useAuthStore, initializeAuth } from '@/store/auth-store';
 import { useProfile } from '@/hooks/api/use-auth';
 import { useSessionManager } from '@/hooks/api/use-auth';
+import { tokenManager } from '@/lib/token-manager';
 import type { User } from '@/types';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -17,8 +18,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Initialize session timeout monitoring
   useSessionManager();
 
-  // Fetch profile on mount if we have a token
-  const { data, isLoading, error } = useProfile();
+  // Only fetch profile if we have a token (prevents race condition with initializeAuth)
+  const hasToken = typeof window !== 'undefined' && !!tokenManager.getAccessToken();
+  const { data, isLoading, error } = useProfile({ enabled: hasToken });
 
   useEffect(() => {
     // Initialize from storage

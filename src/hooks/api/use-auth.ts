@@ -32,8 +32,9 @@ export function useLogin() {
     },
     onSuccess: (data) => {
       const { user, tokens } = data.data;
-      tokenManager.setTokens(tokens.accessToken, tokens.refreshToken, tokens.expiresIn);
+      tokenManager.setTokens(tokens.accessToken, tokens.refreshToken, tokens.expiresIn || 3600);
       setUser(user);
+      setLoading(false); // ← FIX: reset loading state after successful login
       queryClient.invalidateQueries({ queryKey: ['auth'] });
       toast.success(`Welcome back, ${user.name}!`);
     },
@@ -91,7 +92,7 @@ export function useRegister() {
 }
 
 // Get profile hook
-export function useProfile() {
+export function useProfile(options?: { enabled?: boolean }) {
   const setUser = useAuthStore((state) => state.setUser);
   const setInitialized = useAuthStore((state) => state.setInitialized);
 
@@ -108,6 +109,7 @@ export function useProfile() {
     },
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: options?.enabled !== false,
   });
 }
 

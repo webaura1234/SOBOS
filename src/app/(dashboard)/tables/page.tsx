@@ -1,8 +1,6 @@
 'use client';
 
 import {
-  DashboardLayout,
-  DashboardHeader,
   DashboardGrid,
   DashboardSection,
 } from '@/components/dashboard/dashboard-layout';
@@ -199,7 +197,7 @@ export default function TablesDashboardPage() {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <DashboardHeader
         title="Table Management"
         description="Monitor and manage restaurant floor"
@@ -400,6 +398,6 @@ export default function TablesDashboardPage() {
           <ActivityFeed activities={recentActivity} maxHeight={200} />
         </div>
       </DashboardGrid>
-    </DashboardLayout>
+    </>
   );
 }

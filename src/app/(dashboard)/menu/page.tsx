@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { DashboardLayout, DashboardHeader } from '@/components/dashboard/dashboard-layout';
+import {  DashboardHeader } from '@/components/dashboard/dashboard-layout';
 import {
   Plus,
   Search,
@@ -458,7 +458,7 @@ export default function MenuPage() {
   );
 
   return (
-    <DashboardLayout>
+    <>
       <DashboardHeader
         title="Menu Management"
         description={`${items.filter((i) => i.isAvailable).length} of ${items.length} items available`}
@@ -653,6 +653,6 @@ export default function MenuPage() {
           </AnimatePresence>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

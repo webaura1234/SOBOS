@@ -1,8 +1,6 @@
 'use client';
 
 import {
-  DashboardLayout,
-  DashboardHeader,
   DashboardGrid,
   DashboardSection,
   DashboardCard,
@@ -154,7 +152,7 @@ export default function RestaurantOwnerDashboardPage() {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <DashboardHeader
         title="Bella Vista Restaurant"
         description="Owner Dashboard - Today's overview"
@@ -414,6 +412,6 @@ export default function RestaurantOwnerDashboardPage() {
           </Card>
         </DashboardGrid>
       </DashboardSection>
-    </DashboardLayout>
+    </>
   );
 }

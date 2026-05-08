@@ -1,5 +1,6 @@
 import type { User } from '@/types';
 import type { LoginRequest, RegisterRequest } from '@/types/api';
+import { tokenManager } from '@/lib/token-manager';
 
 // Demo user data
 const DEMO_USER: User = {
@@ -35,17 +36,20 @@ const MOCK_REFRESH_TOKEN = 'mock-refresh-token-demo-' + Date.now();
  * Mock authentication service for development/demo purposes
  */
 export const mockAuth = {
-  login: async (data: LoginRequest): Promise<{ user: User; tokens: { accessToken: string; refreshToken: string } }> => {
+  login: async (data: LoginRequest): Promise<{ data: { user: User; tokens: { accessToken: string; refreshToken: string; expiresIn: number } } }> => {
     // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     // Check credentials (accept demo credentials or any email with password "demo")
     if (data.email === DEMO_CREDENTIALS.email && data.password === DEMO_CREDENTIALS.password) {
       return {
-        user: DEMO_USER,
-        tokens: {
-          accessToken: MOCK_TOKEN,
-          refreshToken: MOCK_REFRESH_TOKEN,
+        data: {
+          user: DEMO_USER,
+          tokens: {
+            accessToken: MOCK_TOKEN,
+            refreshToken: MOCK_REFRESH_TOKEN,
+            expiresIn: 3600,
+          },
         },
       };
     }
@@ -53,10 +57,13 @@ export const mockAuth = {
     // Also accept any email with password "demo" for quick testing
     if (data.password === 'demo') {
       return {
-        user: { ...DEMO_USER, email: data.email, name: data.email.split('@')[0] },
-        tokens: {
-          accessToken: MOCK_TOKEN,
-          refreshToken: MOCK_REFRESH_TOKEN,
+        data: {
+          user: { ...DEMO_USER, email: data.email, name: data.email.split('@')[0] },
+          tokens: {
+            accessToken: MOCK_TOKEN,
+            refreshToken: MOCK_REFRESH_TOKEN,
+            expiresIn: 3600,
+          },
         },
       };
     }
@@ -64,7 +71,7 @@ export const mockAuth = {
     throw new Error('Invalid email or password');
   },
 
-  register: async (data: RegisterRequest): Promise<{ user: User }> => {
+  register: async (data: RegisterRequest): Promise<{ data: { user: User } }> => {
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     const newUser: User = {
@@ -87,40 +94,41 @@ export const mockAuth = {
       updatedAt: new Date().toISOString(),
     };
 
-    return { user: newUser };
+    return { data: { user: newUser } };
   },
 
-  getProfile: async (): Promise<{ user: User }> => {
+  getProfile: async (): Promise<{ data: { user: User } }> => {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     // Return demo user if token exists
-    const token = localStorage.getItem('auth_token');
+    const token = tokenManager.getAccessToken();
     if (!token) {
       throw new Error('Not authenticated');
     }
 
-    return { user: DEMO_USER };
+    return { data: { user: DEMO_USER } };
   },
 
   logout: async (): Promise<void> => {
     await new Promise((resolve) => setTimeout(resolve, 300));
-    // Clear tokens
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('refresh_token');
+    // Clear tokens via tokenManager
+    tokenManager.clearTokens();
   },
 
-  refreshToken: async (refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> => {
+  refreshToken: async (_refreshToken: string): Promise<{ data: { accessToken: string; refreshToken: string; expiresIn: number } }> => {
     await new Promise((resolve) => setTimeout(resolve, 500));
     
     return {
-      accessToken: MOCK_TOKEN + '-refreshed',
-      refreshToken: MOCK_REFRESH_TOKEN + '-refreshed',
+      data: {
+        accessToken: MOCK_TOKEN + '-refreshed',
+        refreshToken: MOCK_REFRESH_TOKEN + '-refreshed',
+        expiresIn: 3600,
+      },
     };
   },
 };
 
 // Store mock token in localStorage for persistence
 export const setMockTokens = () => {
-  localStorage.setItem('auth_token', MOCK_TOKEN);
-  localStorage.setItem('refresh_token', MOCK_REFRESH_TOKEN);
+  tokenManager.setTokens(MOCK_TOKEN, MOCK_REFRESH_TOKEN, 3600);
 };

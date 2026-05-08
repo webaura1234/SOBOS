@@ -1,8 +1,6 @@
 'use client';
 
 import {
-  DashboardLayout,
-  DashboardHeader,
   DashboardGrid,
   DashboardSection,
 } from '@/components/dashboard/dashboard-layout';
@@ -99,7 +97,7 @@ export default function StaffDashboardPage() {
   const router = useRouter();
 
   return (
-    <DashboardLayout>
+    <>
       <DashboardHeader
         title="Staff Dashboard"
         description="Welcome back, Sarah"
@@ -249,6 +247,6 @@ export default function StaffDashboardPage() {
           </CardContent>
         </Card>
       </DashboardSection>
-    </DashboardLayout>
+    </>
   );
 }

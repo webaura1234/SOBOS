@@ -1,8 +1,6 @@
 'use client';
 
 import {
-  DashboardLayout,
-  DashboardHeader,
   DashboardGrid,
   DashboardSection,
 } from '@/components/dashboard/dashboard-layout';
@@ -147,7 +145,7 @@ export default function PlatformAdminDashboardPage() {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <DashboardHeader
         title="Platform Admin Dashboard"
         description="Overview of all restaurants and system health"
@@ -366,6 +364,6 @@ export default function PlatformAdminDashboardPage() {
           </CardContent>
         </Card>
       </DashboardSection>
-    </DashboardLayout>
+    </>
   );
 }

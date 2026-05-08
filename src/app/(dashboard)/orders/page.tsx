@@ -1,8 +1,6 @@
 'use client';
 
 import {
-  DashboardLayout,
-  DashboardHeader,
   DashboardGrid,
   DashboardSection,
 } from '@/components/dashboard/dashboard-layout';
@@ -526,7 +524,7 @@ export default function OrdersDashboardPage() {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <DashboardHeader
         title="Bella Vista Restaurant"
         description="Owner Dashboard - Today's overview"
@@ -776,6 +774,6 @@ export default function OrdersDashboardPage() {
           </>
         )}
       </AnimatePresence>
-    </DashboardLayout>
+    </>
   );
 }

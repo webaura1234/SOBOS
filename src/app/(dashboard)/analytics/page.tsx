@@ -1,8 +1,6 @@
 'use client';
 
 import {
-  DashboardLayout,
-  DashboardHeader,
   DashboardGrid,
   DashboardSection,
   DashboardCard,
@@ -111,7 +109,7 @@ export default function AnalyticsDashboardPage() {
   const [timeRange, setTimeRange] = useState('week');
 
   return (
-    <DashboardLayout>
+    <>
       <DashboardHeader
         title="Analytics Dashboard"
         description="Deep insights into restaurant performance"
@@ -426,6 +424,6 @@ export default function AnalyticsDashboardPage() {
           </DashboardGrid>
         </TabsContent>
       </Tabs>
-    </DashboardLayout>
+    </>
   );
 }

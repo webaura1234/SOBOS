@@ -46,14 +46,14 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://restaurantos.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://sobos-three.vercel.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: '/',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'https://sobos-three.vercel.app',
     siteName: 'RestaurantOS',
     title: 'RestaurantOS - Restaurant Management Platform',
     description: 'Streamline orders, manage staff, track performance, and grow your restaurant business.',

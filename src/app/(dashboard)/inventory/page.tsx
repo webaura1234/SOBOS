@@ -1,8 +1,6 @@
 'use client';
 
 import {
-  DashboardLayout,
-  DashboardHeader,
   DashboardGrid,
   DashboardSection,
   DashboardCard,
@@ -346,7 +344,7 @@ export default function InventoryDashboardPage() {
   ];
 
   return (
-    <DashboardLayout>
+    <>
       <DashboardHeader
         title="Inventory Management"
         description="Track stock levels and manage supplies"
@@ -487,6 +485,6 @@ export default function InventoryDashboardPage() {
           <ActivityFeed activities={recentActivity} maxHeight={200} />
         </div>
       </DashboardGrid>
-    </DashboardLayout>
+    </>
   );
 }

@@ -1,8 +1,6 @@
 'use client';
 
 import {
-  DashboardLayout,
-  DashboardHeader,
   DashboardGrid,
   DashboardSection,
 } from '@/components/dashboard/dashboard-layout';
@@ -177,7 +175,7 @@ export default function KitchenDashboardPage() {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <DashboardHeader
         title="Kitchen Display System"
         description="Live order management"
@@ -446,6 +444,6 @@ export default function KitchenDashboardPage() {
           </CardContent>
         </Card>
       </DashboardGrid>
-    </DashboardLayout>
+    </>
   );
 }

@@ -42,53 +42,56 @@ export function AuthGuard({
     if (!isInitialized || isLoading) return;
 
     const checkAuth = async () => {
-      // Check session timeout
-      if (isAuthenticated && checkSessionTimeout()) {
-        router.push('/auth/session-expired?redirect=' + encodeURIComponent(window.location.pathname));
-        return;
-      }
-
-      // Require authentication
-      if (requireAuth && !isAuthenticated) {
-        const callbackUrl = searchParams.get('callbackUrl') || window.location.pathname;
-        router.push(`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
-        return;
-      }
-
-      // Redirect authenticated users away from auth pages
-      if (!requireAuth && isAuthenticated) {
-        const callbackUrl = searchParams.get('callbackUrl');
-        if (callbackUrl) {
-          router.push(callbackUrl);
-        } else {
-          router.push('/dashboard');
-        }
-        return;
-      }
-
-      // Check role permissions
-      if (requireAuth && allowedRoles && allowedRoles.length > 0) {
-        if (!hasAnyRole(allowedRoles)) {
-          router.push('/unauthorized');
+      try {
+        // Check session timeout
+        if (isAuthenticated && checkSessionTimeout()) {
+          router.push('/auth/session-expired?redirect=' + encodeURIComponent(window.location.pathname));
           return;
         }
-      }
 
-      // Check onboarding status
-      if (requireAuth && requireOnboarding && user && !user.onboardingCompleted) {
-        router.push('/onboarding');
-        return;
-      }
-
-      // Check location assignment
-      if (requireAuth && user?.role !== 'platform_admin') {
-        if (!user?.restaurantIds?.length) {
-          router.push('/no-location-assigned');
+        // Require authentication
+        if (requireAuth && !isAuthenticated) {
+          const callbackUrl = searchParams.get('callbackUrl') || window.location.pathname;
+          router.push(`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
           return;
         }
-      }
 
-      setIsChecking(false);
+        // Redirect authenticated users away from auth pages
+        if (!requireAuth && isAuthenticated) {
+          const callbackUrl = searchParams.get('callbackUrl');
+          if (callbackUrl) {
+            router.push(callbackUrl);
+          } else {
+            router.push('/dashboard');
+          }
+          return;
+        }
+
+        // Check role permissions
+        if (requireAuth && allowedRoles && allowedRoles.length > 0) {
+          if (!hasAnyRole(allowedRoles)) {
+            router.push('/unauthorized');
+            return;
+          }
+        }
+
+        // Check onboarding status
+        if (requireAuth && requireOnboarding && user && !user.onboardingCompleted) {
+          router.push('/onboarding');
+          return;
+        }
+
+        // Check location assignment
+        if (requireAuth && user?.role !== 'platform_admin') {
+          if (!user?.restaurantIds?.length) {
+            router.push('/no-location-assigned');
+            return;
+          }
+        }
+      } finally {
+        // ← FIX: always clear checking state, even on early returns
+        setIsChecking(false);
+      }
     };
 
     checkAuth();
