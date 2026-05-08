@@ -15,6 +15,7 @@ const publicRoutes = [
   '/session-expired',
   '/no-access',
   '/no-location-assigned',
+  '/offline',
 ];
 
 // Auth routes (redirect authenticated users away)
@@ -24,11 +25,6 @@ const authRoutes = [
   '/auth/forgot-password',
   '/auth/reset-password',
 ];
-
-// Routes that require specific roles
-const roleProtectedRoutes: Record<string, string[]> = {
-  '/admin': ['platform_admin'],
-};
 
 // Check if route is public
 function isPublicRoute(pathname: string): boolean {
@@ -40,51 +36,17 @@ function isAuthRoute(pathname: string): boolean {
   return authRoutes.some((route) => pathname.startsWith(route));
 }
 
-// Get required roles for route
-function getRequiredRoles(pathname: string): string[] | null {
-  for (const [route, roles] of Object.entries(roleProtectedRoutes)) {
-    if (pathname.startsWith(route)) {
-      return roles;
-    }
-  }
-  return null;
-}
-
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Get auth token from cookies
-  const token = request.cookies.get('auth_token')?.value;
-  const isAuthenticated = !!token;
-
-  // Redirect authenticated users away from auth pages
-  if (isAuthRoute(pathname) && isAuthenticated) {
-    const callbackUrl = request.nextUrl.searchParams.get('callbackUrl');
-    if (callbackUrl) {
-      return NextResponse.redirect(new URL(callbackUrl, request.url));
-    }
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  // Allow public routes
+  // Allow public routes without any checks
   if (isPublicRoute(pathname)) {
     return NextResponse.next();
   }
 
-  // Redirect unauthenticated users to login
-  if (!isAuthenticated) {
-    const loginUrl = new URL('/auth/login', request.url);
-    loginUrl.searchParams.set('callbackUrl', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Check role-based access
-  const requiredRoles = getRequiredRoles(pathname);
-  if (requiredRoles) {
-    // In production, you'd decode the JWT and check the role
-    // For now, we let the client-side guards handle this
-    return NextResponse.next();
-  }
+  // For static/demo deployments: Auth is handled client-side via localStorage
+  // Middleware only handles basic security headers and route normalization
+  // Client-side AuthGuard components handle actual authentication
 
   // Check for static assets and API routes
   if (
@@ -96,6 +58,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // For demo/static deployment: Allow all dashboard routes
+  // Client-side auth guards will handle redirects if not authenticated
   return NextResponse.next();
 }
 
